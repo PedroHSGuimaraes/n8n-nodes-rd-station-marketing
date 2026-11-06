@@ -125,7 +125,7 @@ export const searchSegmentations = makeListSearch({
 export const searchWorkflows = makeListSearch({
 	path: '/platform/workflows',
 	pageSize: 50,
-	searchParam: 'search',
+	// A rota de fluxos não tem parâmetro de busca na RD (só `ids` e `order`): o filtro roda aqui.
 	toResult: (item) => ({ name: String(item.name), value: String(item.id) }),
 });
 

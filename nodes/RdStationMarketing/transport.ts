@@ -233,9 +233,11 @@ export async function rdMarketingPaginate(
 	for (let page = 1; ; page++) {
 		// Rota sem paginação não recebe `page`: a RD devolve a lista inteira de uma vez.
 		const qs: IDataObject = { ...options.qs };
-		// Quantos itens esta página deve trazer: o máximo da rota, ou só o que falta para o limite.
+		// Tamanho da página, igual em TODAS as páginas: a RD calcula o deslocamento como
+		// (page - 1) * page_size, então mudar o tamanho no meio da leitura repete e pula registros.
+		// Com limite menor que a rota aceita, pedimos só o limite; o excesso é cortado no fim.
 		// Rota sem `page_size` não tem tamanho fixo; ali "página cheia" é qualquer página com 1 item.
-		const asked = pageSize ? Math.min(pageSize, wanted - collected.length) : 1;
+		const asked = pageSize ? Math.min(pageSize, wanted) : 1;
 		if (paginated) {
 			qs.page = page;
 			if (pageSize) qs.page_size = asked;

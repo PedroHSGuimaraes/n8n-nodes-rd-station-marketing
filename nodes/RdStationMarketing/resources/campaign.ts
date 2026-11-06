@@ -90,7 +90,8 @@ const get: OperationHandler = async function (i) {
 		this,
 		'GET',
 		`/platform/campaigns/${campaignIdOf(this, i)}`,
-		{ itemIndex: i, errorHints: PLAN_HINTS },
+		// Sem o aviso de plano: aqui um 404 quase sempre é ID errado, e o aviso enganaria.
+		{ itemIndex: i },
 	);
 	return (response.campaign as IDataObject | undefined) ?? response;
 };
@@ -105,8 +106,8 @@ const getItems: OperationHandler = async function (i) {
 		pageSize: CAMPAIGN_PAGE_SIZE,
 		returnAll: this.getNodeParameter('returnAll', i, false) as boolean,
 		limit: this.getNodeParameter('limit', i, 50) as number,
+		// Sem o aviso de plano nos itens, pelo mesmo motivo do Get.
 		itemIndex: i,
-		errorHints: PLAN_HINTS,
 	});
 };
 

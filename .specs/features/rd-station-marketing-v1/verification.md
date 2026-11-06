@@ -1,0 +1,118 @@
+# RD Station Marketing v1 verification
+
+**Verdict**: FAIL
+**Proofs**: `proofs.md` at 6de2a8d
+**Verifier**: independent sub-agent (author != verifier)
+
+## Checks
+
+| Check | Test | Holds |
+| --- | --- | --- |
+| C1 | `estrutura.test.cjs` `C1 - o build gera os nodes, as credenciais e os ícones svg em dist/` | yes |
+| C2 | comando `npm run lint` (`n8n-node lint`, exit 0) | yes |
+| C3 | `estrutura.test.cjs` `C3 - o package.json traz os campos do plano e nenhum dependencies` | yes |
+| C4 | comando `npm test` (saída `# fail 0`; 94 testes, 0 falhas) | yes |
+| C5 | `estrutura.test.cjs` `C5 - o workflow de CI roda npm ci, lint, test e build no Pull Request` | yes - `includes` no arquivo inteiro, não prova o mesmo job nem a ordem (aceito) |
+| C6 | `estrutura.test.cjs` `C6 - o workflow de publicação confere a tag, roda lint, test e build e publica` | yes |
+| C7 | `estrutura.test.cjs` `C7 - todo .ts de nodes/ e credentials/ abre com bloco /** ...` | yes |
+| C8 | `estrutura.test.cjs` `C8 - o README está em PT-BR com as 5 seções e o CHANGELOG tem a seção 1.0.0` | yes |
+| C9 | `credenciais.test.cjs` `C9 - OAuth2 estende oAuth2Api com authorizationCode, as duas URLs e body` | yes |
+| C10 | `credenciais.test.cjs` `C10 - a chave de API tem apiKey com typeOptions.password e vai na query` | yes |
+| C11 | `contato.test.cjs` `C11 - toda requisição leva timeout 30000, base da RD e Content-Type JSON` | yes - só a rota Contact Get; as demais dependem da função única do transporte |
+| C12 | `evento.test.cjs` `C12 - Send Conversion usa a chave de API em /platform/conversions e OAuth2 em /platform/events` | no - o ramo `apiKey` não assere método nem corpo (só credencial, URL e ausência de `Authorization`); `api_key` na query vem de C10, não deste teste |
+| C13 | `evento.test.cjs` `C13 - o seletor authentication só aparece em Send Conversion` | yes |
+| C14 | `contato.test.cjs` `C14 - 401 vira NodeApiError com a mensagem e a descrição do plano` | yes |
+| C15 | `contato.test.cjs` `C15 - 429 vira "Wait 44 seconds", "Wait 1 second" e o texto sem remaining_time` | yes |
+| C16 | `contato.test.cjs` `C16 - 400 com errors.email[0].error_type vira a mensagem do campo 'email'` | yes |
+| C17 | `contato.test.cjs` `C17 - com Continue On Fail o item 1 devolve { error } e o item 2 é processado` | no - assere `typeof json[0].error === 'string'`, não a mensagem; `{ error: '' }` passa |
+| C18 | `contato.test.cjs` `C18 - Get chama GET /platform/contacts/email:foo@bar.com e devolve 1 item` | yes |
+| C19 | `contato.test.cjs` `C19 - Create envia { email, name } em POST /platform/contacts` | yes |
+| C20 | `contato.test.cjs` `C20 - Create sem e-mail e sem telefone lança o erro do plano sem chamar a RD` | no - só o ramo que lança; nenhum teste aceita Create só com telefone, então exigir sempre o e-mail passa |
+| C21 | `contato.test.cjs` `C21 - Update por e-mail não envia email; por uuid envia o email novo` | yes |
+| C22 | `contato.test.cjs` `C22 - Update com tags "a, b" envia ["a","b"] e a descrição avisa que substitui` | yes |
+| C23 | `contato.test.cjs` `C23 - Delete chama DELETE e devolve { deleted: true } com 204 sem corpo` | yes |
+| C24 | `contato.test.cjs` `C24 - Add Tags chama POST .../tag com { tags: ["Primeiro contato"] }` | yes |
+| C25 | `contato.test.cjs` `C25 - Get Events com Return All repete page 1, 2, 3 até vir uma página vazia` | yes |
+| C26 | `contato.test.cjs` `C26 - Custom Fields de Create e Update entram no corpo como cf_plano: "Pro"` | yes |
+| C27 | `contato.test.cjs` `C27 - Simplify em Get devolve só os 10 campos do plano` | yes - compara as chaves, não os valores (aceito) |
+| C28 | `contato.test.cjs` `C28 - 404 em Get vira "The contact was not found [item 0]" com a descrição do plano` | yes |
+| C29 | `campos.test.cjs` `C29 - Get Many com Return All chama a rota uma vez, sem page, e devolve 1 item por campo` | yes |
+| C30 | `campos.test.cjs` `C30 - Get Many com Limit 10 e 25 campos devolve 10 itens` | yes |
+| C31 | `campos.test.cjs` `C31 - Create envia name e label como { "pt-BR": "Plano" }` | yes |
+| C32 | `campos.test.cjs` `C32 - api_identifier sem cf_ lança o erro do plano sem chamar a RD` | yes |
+| C33 | `campos.test.cjs` `C33 - Update chama PATCH .../fields/<uuid> sem api_identifier no corpo` | yes |
+| C34 | `campos.test.cjs` `C34 - Delete chama DELETE e devolve { deleted: true }` | yes |
+| C35 | `campos.test.cjs` `C35 - o loadOptions mantém só custom_field verdadeiro e devolve { name, value: api_identifier }` (e o segundo `C35 - o listSearch de campos ...`) | yes |
+| C36 | `funil.test.cjs` `C36 - Get chama GET .../funnels/default e devolve os 5 campos` | yes |
+| C37 | `funil.test.cjs` `C37 - Update envia { lifecycle_stage, opportunity } por PUT` | yes |
+| C38 | `funil.test.cjs` `C38 - o dropdown lifecycleStage tem exatamente Lead, Qualified Lead e Client` | yes |
+| C39 | `funil.test.cjs` `C39 - removeContactOwner envia contact_owner_email null; desligado e vazio omite o campo` | yes |
+| C40 | `segmentacao-fluxo.test.cjs` `C40 - Get Many com Return All usa page_size 125 e pagina até vir página curta` | yes |
+| C41 | `segmentacao-fluxo.test.cjs` `C41 - Get Contacts chama GET /platform/segmentations/<id>/contacts e devolve 1 item por contato` | yes |
+| C42 | `segmentacao-fluxo.test.cjs` `C42 - o listSearch envia search=leads, devolve { name, value: id } e inclui os ids 1 a 5 sem busca` | yes |
+| C43 | `segmentacao-fluxo.test.cjs` `C43 - Get Many extrai os itens da chave wokflows (grafada errado)` | yes - a resposta só tem essa lista, então o fallback "primeira lista" também passa (aceito) |
+| C44 | `segmentacao-fluxo.test.cjs` `C44 - Get chama GET /platform/workflows/<id> e devolve workflow_info` | yes |
+| C45 | `segmentacao-fluxo.test.cjs` `C45 - Add Leads envia { leads } e devolve leads_added e leads_not_found` | yes |
+| C46 | `segmentacao-fluxo.test.cjs` `C46 - Started, Left e Action Executed chamam as 3 rotas de leads com as datas` | yes |
+| C47 | `segmentacao-fluxo.test.cjs` `C47 - endDate antes de startDate lança o erro do plano sem chamar a RD` | no - só o caso `end < start`; datas iguais não são testadas, então trocar `<` por `<=` em `assertDateRange` passa |
+| C48 | `segmentacao-fluxo.test.cjs` `C48 - o loadOptions de ações lê o fluxo e devolve { name: type, value: id }` | yes |
+| C49 | `ativos.test.cjs` `C49 - Email Get Many envia query e devolve 1 item por elemento de items` | yes |
+| C50 | `ativos.test.cjs` `C50 - Email Get chama GET /platform/emails/<id>` | yes |
+| C51 | `ativos.test.cjs` `C51 - Landing Page, Pop-up e Form Get Many chamam as 3 rotas com page e page_size` | yes |
+| C52 | `ativos.test.cjs` `C52 - Get Many com Return All usa page_size 50 e pagina até vir menos de 50` | yes |
+| C53 | `ativos.test.cjs` `C53 - Get e Get Items chamam /campaigns/<id> e /items e desembrulham a resposta` | yes |
+| C54 | `ativos.test.cjs` `C54 - Get Items com itemType email envia item_type=email` | yes |
+| C55 | `ativos.test.cjs` `C55 - 403 ou 404 em Get Many leva a descrição sobre os planos Pro e Advanced` | yes - o código aplica a mesma descrição também a Campaign Get e Get Items, o que nenhum teste nem o plano cobre (ver Findings) |
+| C56 | `analytics.test.cjs` `C56 - Get Emails envia as datas e devolve 1 item por elemento de emails` | yes |
+| C57 | `analytics.test.cjs` `C57 - Workflow Emails, Funnel e Conversions chamam as 3 rotas e devolvem 1 item por linha` | yes - só Conversions tem lista concorrente no envelope; nos outros dois a chave errada passaria pelo fallback (aceito) |
+| C58 | `analytics.test.cjs` `C58 - Get Funnel envia grouped_by weekly e, no padrão, daily` | yes |
+| C59 | `analytics.test.cjs` `C59 - Get Conversions envia assets_type[] repetido para LandingPage e Popup` | yes - assere `qs['assets_type[]']` e `arrayFormat: 'repeat'`; conferi com `qs.stringify` que sai `assets_type%5B%5D=LandingPage&assets_type%5B%5D=Popup` |
+| C60 | `analytics.test.cjs` `C60 - nas 4 operações, endDate antes de startDate lança o erro do plano sem chamar a RD` | no - mesmo vazio do C47: datas iguais não testadas nas 4 operações |
+| C61 | `evento.test.cjs` `C61 - Send Conversion envia CONVERSION, CDP e o payload, e devolve event_uuid` | yes |
+| C62 | `evento.test.cjs` `C62 - Send Conversion sem e-mail e sem telefone lança o erro do plano sem chamar a RD` | no - mesmo vazio do C20: nenhum teste aceita a conversão só com telefone |
+| C63 | `evento.test.cjs` `C63 - o campo personalizado cf_plano entra dentro do payload` | yes |
+| C64 | `evento.test.cjs` `C64 - Mark Opportunity envia OPPORTUNITY com funnel_name default` | yes |
+| C65 | `evento.test.cjs` `C65 - Mark Sale envia SALE com value 1500 e omite o value vazio` | yes |
+| C66 | `evento.test.cjs` `C66 - Mark Lost Opportunity envia OPPORTUNITY_LOST com o motivo` | yes |
+| C67 | `evento.test.cjs` `C67 - motivo vazio lança "The 'Reason' parameter is empty [item 0]" sem chamar a RD` | yes |
+| C68 | `evento.test.cjs` `C68 - Chat Started envia CHAT_STARTED com assunto e status; Finished exige a transcrição` | yes |
+| C69 | `evento.test.cjs` `C69 - Send Call Finished envia CALL_FINISHED com número e status` | yes |
+| C70 | `evento.test.cjs` `C70 - Send Media Event com Stopped envia MEDIA_PLAYBACK_STOPPED com tipo e identificador` | yes |
+| C71 | `evento.test.cjs` `C71 - Send Custom Event envia o tipo e o payload, e o dropdown tem os 8 ECOMMERCE_*` | yes |
+| C72 | `evento.test.cjs` `C72 - Send Batch chama POST /platform/events/batch com os 3 eventos e devolve o lote` | yes |
+| C73 | `evento.test.cjs` `C73 - lote acima de 200000 bytes lança o erro do plano sem chamar a RD` | no - o lote do teste tem cerca de 460 KB e nenhum teste envia um lote perto do limite; subir `MAX_BATCH_BYTES` para 400000 ou descontar um byte passa |
+| C74 | `evento.test.cjs` `C74 - JSON inválido em Custom Event e Batch lança "The 'Payload' parameter is not valid JSON [item 0]"` | yes |
+| C75 | `catalogo-webhook.test.cjs` `C75 - Create envia name, url e format e omite username e password vazios` | yes |
+| C76 | `catalogo-webhook.test.cjs` `C76 - Get, Get Many, Update e Delete chamam GET, GET, PATCH e DELETE` | no - não assere a URL do DELETE nem o método do Get Many; um DELETE em `/platform/catalog_feeds` sem id passa |
+| C77 | `catalogo-webhook.test.cjs` `C77 - o dropdown format tem exatamente xml, json e google_shopping` | yes |
+| C78 | `catalogo-webhook.test.cjs` `C78 - Create envia CONTACT, POST e event_identifiers ["newsletter"]` | yes |
+| C79 | `catalogo-webhook.test.cjs` `C79 - com MARKED_OPPORTUNITY eventIdentifiers fica escondido e o corpo omite event_identifiers` | yes |
+| C80 | `catalogo-webhook.test.cjs` `C80 - Get, Get Many, Update e Delete chamam GET, GET, PUT e DELETE` | no - mesmo vazio do C76: sem a URL do DELETE e sem o método de Get e Get Many |
+| C81 | `catalogo-webhook.test.cjs` `C81 - o dropdown eventType tem só os 2 eventos do Marketing e nenhum crm_deal_*` | yes |
+| C82 | `gatilho.test.cjs` `C82 - Converted chama POST /integrations/webhooks e grava o webhookUuid no static data` | yes |
+| C83 | `gatilho.test.cjs` `C83 - Marked as Opportunity envia WEBHOOK.MARKED_OPPORTUNITY sem event_identifiers` | yes |
+| C84 | `gatilho.test.cjs` `C84 - conversionIdentifiers "newsletter, landing-1" vira event_identifiers` | yes |
+| C85 | `gatilho.test.cjs` `C85 - includeRelations vira ["COMPANY", "CONTACT_FUNNEL"]` | yes |
+| C86 | `gatilho.test.cjs` `C86 - com webhookUuid ainda listado pela RD o checkExists devolve verdadeiro e nada é criado` | yes |
+| C87 | `gatilho.test.cjs` `C87 - delete chama DELETE e limpa o uuid; 404 conta como apagado; 500 lança NodeApiError` | yes |
+| C88 | `gatilho.test.cjs` `C88 - INVALID_URL na criação lança NodeApiError com a descrição sobre HTTPS público` | yes |
+| C89 | `gatilho.test.cjs` `C89 - responde 200 e emite 1 item com o corpo completo de WEBHOOK.CONVERTED` | yes - o `200` vem de `responseMode: onReceived` (C95) |
+| C90 | `gatilho.test.cjs` `C90 - corpo sem event_type responde 200 e não emite item` | yes |
+| C91 | `estrutura.test.cjs` `C91 - os nodes mantêm os nomes e os parâmetros que ficam salvos nos workflows` | yes |
+| C92 | `estrutura.test.cjs` `C92 - todo ID com rota de listagem é resourceLocator com list (padrão, searchable) e id` | yes |
+| C93 | `segmentacao-fluxo.test.cjs` `C93 - o listSearch com 401 da RD lança NodeApiError com a mensagem do plano` | yes - cobre 5 dos 7 `listSearch`; o `loadOptions` com 401 (a Surface o cita) não é exercitado |
+| C94 | `credenciais.test.cjs` `C94 - o teste da credencial chama GET /platform/contacts/fields na base da RD` | no - assere `baseURL` e `url`, não o método; `method: 'POST'` na credencial passa. A linha de Coverage "401 C94" também não tem asserção de 401 |
+| C95 | `estrutura.test.cjs` `C95 - o gatilho declara o webhook POST no caminho webhook e responde na hora` | yes |
+
+## Findings
+
+| Finding | Evidence | Fix | Closed |
+| --- | --- | --- | --- |
+| Return All desligado com `limit` maior que a página e não múltiplo dela devolve itens repetidos e perde outros | `nodes/RdStationMarketing/transport.ts:238-245`: `asked = min(pageSize, wanted - collected.length)` encolhe o `page_size` na 2ª página, e a RD recalcula o deslocamento com o tamanho novo. Sonda fora de `test/` com servidor que honra `page` e `page_size` (300 registros): Segmentation Get Many `limit` 150 chama `(page 1, size 125)` e `(page 2, size 25)` e devolve 150 itens com só 125 ids distintos (ids 1-125, depois 26-50); `limit` 200 devolve 200 itens e 150 distintos; Leads Started `limit` 30 (page_size 25) devolve e1..e25, e6..e10. Nenhum check cobre `limit` maior que o `page_size` (C41 e C51 usam limit menor que a página) | pedir sempre `page_size` fixo da rota e cortar com `slice(0, limit)`; só reduzir o `page_size` quando a rota tem uma única página; acrescentar check com `limit` 150 contra servidor que pagina | |
+| Datas iguais e o limite do lote de 200000 bytes não têm teste: um deslocamento de um passa | C47 e C60 só testam `end < start` (`segmentacao-fluxo.test.cjs:152-165`, `analytics.test.cjs:78-94`); C73 usa lote de cerca de 460 KB (`evento.test.cjs:346-362`). Hoje o código está certo (sondei: `start == end` passa; lote de 200000 bytes passa, 200001 falha; multibyte conta bytes), mas `<=` ou `MAX_BATCH_BYTES` 400000 deixam a suíte verde | acrescentar o caso `start == end` (deve chamar a RD) aos checks C47 e C60, e lotes de 200000 (passa) e 200001 bytes (falha) ao C73 | |
+| Só o ramo de erro de "e-mail ou telefone" é provado; o ramo que aceita só telefone não | C20 (`contato.test.cjs:35-46`) e C62 (`evento.test.cjs:160-165`) só lançam. `requireEmailOrPhone` que exija sempre o e-mail passa. Sondei: Create só com `additionalFields.phone` passa e envia o telefone; só com `mobilePhone` lança `Provide an email or a phone` (o plano não diz se `mobilePhone` conta) | acrescentar aos dois checks o caso só com telefone, que deve chamar a RD; o dono decide se `mobilePhone` e `personalPhone` contam | |
+| C76 e C80 não provam a URL do DELETE nem o método do Get e do Get Many | `catalogo-webhook.test.cjs:74-79` assere o método e `deleted`, não a URL; `:131-166` não assere o método de Get e Get Many | acrescentar `url` do DELETE (`/platform/catalog_feeds/7`, `/integrations/webhooks/w-1`) e `method` GET nos dois checks | |
+| C12, C17 e C94 asserem menos que o critério | C12 (`evento.test.cjs:120-133`): o ramo `apiKey` não assere `POST` nem o corpo. C17 (`contato.test.cjs:286`): `typeof json[0].error === 'string'`. C94 (`credenciais.test.cjs:206-210`): não assere o método GET | C12: `method` POST e corpo `CONVERSION` na rota `/platform/conversions`; C17: assere o texto da mensagem; C94: `assert.equal(request.method, undefined)` ou `'GET'` | |
+| Campaign Get e Get Items recebem a descrição de plano Pro/Advanced que o plano reserva ao Get Many | `nodes/RdStationMarketing/resources/campaign.ts:29,93,109` aplicam `PLAN_HINTS` a `get` e `getItems`; plano S7.7 e C55 falam só de Get Many. Um `404` por ID errado vira "pode precisar do plano Pro ou Advanced" | tirar `errorHints` de `get` e `getItems`, ou o dono declara no plano que as três operações valem e C55 as cobre | |
+| `search` enviado a rotas em que o plano só documenta `page` e `page_size` | `nodes/RdStationMarketing/resources/assets.ts:27,34` (landing_pages, popups, embeddables) e `campaign.ts` (Get Many) enviam `search`; `methods.ts` envia `search` ao `listSearch` de fluxos e campanhas. O plano documenta `search` só para segmentações (S6.3) e `query` para e-mails (S7.1), e o "Out of scope" exclui filtros que a RD não documenta. Se a RD ignorar o parâmetro, a caixa de busca devolve a lista inteira sem aviso (com `searchParam` definido o filtro local não roda) | confirmar na fonte oficial; se o parâmetro não existir, tirar o campo `Search` dessas rotas ou filtrar localmente | |
+| Comportamentos de código sem critério no plano e sem teste | `RdStationMarketingTrigger.node.ts:125` troca a descrição do `401` na criação do webhook por `Reconnect the RD Station credential. <URL_HELP>` (plano S2.6 e S11.7 não o citam); `RdStationMarketingApi.credentials.ts:58` testa a chave de API com `POST /platform/conversions` e corpo vazio, rota que o plano não cita (a Surface só descreve o teste da OAuth2); Send Chat Event `Started` exige `chatSubject` (`event.ts:538`) sem critério | decidir se entram no plano (com check) ou saem do código | |
