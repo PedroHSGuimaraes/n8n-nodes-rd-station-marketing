@@ -80,4 +80,27 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		// O uuid velho sai do static data mesmo assim: o `create` grava o novo.
 		assert.equal('webhookUuid' in ctx.estatico, false);
 	});
+
+	it('C102 - Include Relations diferente recria; relações ausentes na lista da RD não forçam recriação', async () => {
+		// Node sem relações, mas o webhook salvo na RD tem COMPANY: a configuração mudou, recria.
+		const comRelacao = await rodar({ ...salvo, include_relations: ['COMPANY'] });
+		assert.equal(comRelacao.existe, false);
+
+		// Node com relações e a lista da RD sem o campo: a RD pode não devolvê-lo na listagem, então
+		// não dá para provar diferença e o webhook fica (evita recriar a cada ativação).
+		const ctx = contexto(
+			{ ...parametros, includeRelations: ['COMPANY', 'CONTACT_FUNNEL'] },
+			() => ({ webhooks: [salvo] }),
+			{ estatico: { webhookUuid: 'w-1' } },
+		);
+		assert.equal(await metodos().checkExists.call(ctx), true);
+
+		// Mesmas relações em outra ordem: igual.
+		const igual = contexto(
+			{ ...parametros, includeRelations: ['COMPANY', 'CONTACT_FUNNEL'] },
+			() => ({ webhooks: [{ ...salvo, include_relations: ['CONTACT_FUNNEL', 'COMPANY'] }] }),
+			{ estatico: { webhookUuid: 'w-1' } },
+		);
+		assert.equal(await metodos().checkExists.call(igual), true);
+	});
 });

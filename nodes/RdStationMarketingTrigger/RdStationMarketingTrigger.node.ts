@@ -36,10 +36,16 @@ const EVENT_TYPES: Record<string, string> = {
 function sameWebhook(saved: IDataObject, wanted: IDataObject): boolean {
 	const normalize = (value: unknown): string[] =>
 		(Array.isArray(value) ? (value as string[]) : []).map(String).sort();
+	const sameList = (key: string) =>
+		normalize(saved[key]).join('\n') === normalize(wanted[key]).join('\n');
+	// As relações só entram na conta quando a RD as devolve na lista; se o campo não vier, não dá para
+	// provar diferença, e recriar a cada ativação seria pior que manter o webhook.
+	const sameRelations = saved.include_relations === undefined || sameList('include_relations');
 	return (
 		saved.event_type === wanted.event_type &&
 		saved.url === wanted.url &&
-		normalize(saved.event_identifiers).join('\n') === normalize(wanted.event_identifiers).join('\n')
+		sameList('event_identifiers') &&
+		sameRelations
 	);
 }
 
@@ -123,6 +129,7 @@ export class RdStationMarketingTrigger implements INodeType {
 					eventType: EVENT_TYPES[this.getNodeParameter('event') as string],
 					url: this.getNodeWebhookUrl('default') as string,
 					identifiers: this.getNodeParameter('conversionIdentifiers', '') as string,
+					relations: this.getNodeParameter('includeRelations', []) as string[],
 				});
 				if (sameWebhook(saved, wanted)) return true;
 				// O webhook salvo está velho (a pessoa mudou o evento, a URL ou o filtro). Apaga o antigo

@@ -61,6 +61,10 @@ describe('Retentativa no 429', () => {
 			[{ error: 'rate' }, {}, 2000],
 			// Teto de 60 s: uma espera absurda do servidor não trava o workflow por minutos.
 			[{ error: 'rate' }, { 'retry-after': '900' }, 60000],
+			// Os dois juntos: o cabeçalho Retry-After ganha do remaining_time do corpo.
+			[{ error: 'rate', remaining_time: 9000 }, { 'retry-after': '3' }, 3000],
+			// O teto de 60 s também vale para o remaining_time do corpo.
+			[{ error: 'rate', remaining_time: 120000 }, {}, 60000],
 		];
 		for (const [corpo, cabecalhos, esperado] of casos) {
 			esperas.length = 0;

@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-101 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
+102 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -340,6 +340,9 @@ Proof: run unit | ✔ C100 -
 **C101** - Depois de 3 requisições com 429 o erro claro de limite sobe, e outros erros como o 401 não são repetidos (the-judge F3)
 Proof: run unit | ✔ C101 -
 
+**C102** - Include Relations diferente recria o webhook; relações ausentes na lista da RD não forçam recriação (Verifier, segundo round)
+Proof: run unit | ✔ C102 -
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -358,7 +361,7 @@ Proof: run unit | ✔ C101 -
 | `listSearch` e `loadOptions` statuses (2) | 200 C42 · 401 C93 | - |
 | teste da credencial statuses (2) | 200 C94 · 401 C94 | - |
 | one-way doors (6) | nomes C91 · IDs C92 · saída das listagens C29 · static data C82 · credencial OAuth2 C9 · dependências C3 | - |
-| divergências do webhook salvo (3) | evento C96 · URL C97 · identificadores C97 | - |
+| divergências do webhook salvo (4) | evento C96 · URL C97 · identificadores C97 · relações C102 | - |
 | espera do 429 (4) | Retry-After C100 · remaining_time C100 · fixa C100 · teto C100 | - |
 | exemplos de paginação, AC S6.1 (2) | 125+40 C40 · 125+0 C40 | - |
 | exemplos de `remaining_time` (3) | 43067 C15 · 1000 C15 · ausente C15 | - |
