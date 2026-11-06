@@ -331,7 +331,7 @@ Proof: run unit | ✔ C95 -
 | ações de e-mail, páginas e campanhas (7) | emails C49 · email C50 · páginas C51 · popups C51 · formulários C51 · campanhas C52 · campanha C53 | - |
 | ações de analytics (4) | emails C56 · workflow_emails C57 · funnel C57 · conversions C57 | - |
 | ações de evento (11) | conversão C61 · oportunidade C64 · venda C65 · perdida C66 · chat C68 · chamada C69 · mídia C70 · custom C71 · batch C72 · conversão por chave C12 · eventos pelo OAuth2 C12 | - |
-| ações de catálogo e webhook (10) | catálogo create C75 · catálogo get/getMany/update/delete C76 · webhook create C78 · webhook get/getMany/update/delete C80 | - |
+| ações de catálogo e webhook (10) | catálogo create C75 · catálogo get C76 · catálogo getMany C76 · catálogo update C76 · catálogo delete C76 · webhook create C78 · webhook get C80 · webhook getMany C80 · webhook update C80 · webhook delete C80 | - |
 | ações do gatilho (3) | create C82 · checkExists C86 · delete C87 | - |
 | `rdStationMarketing` statuses (4) | 200 C18 · 400 C16 · 401 C14 · 429 C15 | - |
 | `rdStationMarketingTrigger` statuses (2) | 200 C89 · 404 C95 | - |
