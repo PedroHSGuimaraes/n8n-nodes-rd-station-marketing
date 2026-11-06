@@ -7,6 +7,10 @@
  * O arquivo não termina em `.test.cjs`, então o `node --test` não o executa como suíte.
  */
 
+// A retentativa do 429 espera de verdade em produção. Nos testes a espera vira um "não faz nada",
+// para os casos de 429 (que podem pedir até 60 s) não travarem a suíte.
+require('../dist/nodes/RdStationMarketing/transport').rdRetry.sleep = async () => {};
+
 // Erro que imita o que o n8n lança quando a RD responde fora de 2xx: o NodeApiError traz o status
 // em `httpCode` e a resposta original da RD em `cause.response`.
 function erroHttp(status, corpo, cabecalhos = {}) {

@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-95 checks in 12 slices · 6 one-way doors · 0 open, of which 0 block
+101 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -331,6 +331,15 @@ Proof: run unit | ✔ C97 -
 **C98** - Falha ao apagar o webhook antigo vai para o log e o `checkExists` ainda devolve false (the-judge F2)
 Proof: run unit | ✔ C98 -
 
+**C99** - Um 429 no meio do Return All é repetido depois da espera e o resultado tem as duas páginas (the-judge F3)
+Proof: run unit | ✔ C99 -
+
+**C100** - A espera do 429 usa o Retry-After, depois o `remaining_time`, depois 2 s fixos, com teto de 60 s (the-judge F3)
+Proof: run unit | ✔ C100 -
+
+**C101** - Depois de 3 requisições com 429 o erro claro de limite sobe, e outros erros como o 401 não são repetidos (the-judge F3)
+Proof: run unit | ✔ C101 -
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -350,6 +359,7 @@ Proof: run unit | ✔ C98 -
 | teste da credencial statuses (2) | 200 C94 · 401 C94 | - |
 | one-way doors (6) | nomes C91 · IDs C92 · saída das listagens C29 · static data C82 · credencial OAuth2 C9 · dependências C3 | - |
 | divergências do webhook salvo (3) | evento C96 · URL C97 · identificadores C97 | - |
+| espera do 429 (4) | Retry-After C100 · remaining_time C100 · fixa C100 · teto C100 | - |
 | exemplos de paginação, AC S6.1 (2) | 125+40 C40 · 125+0 C40 | - |
 | exemplos de `remaining_time` (3) | 43067 C15 · 1000 C15 · ausente C15 | - |
 | webhook DELETE status (3) | 204 C87 · 404 C87 · 500 C87 | - |

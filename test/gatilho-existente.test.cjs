@@ -59,14 +59,21 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		// Igual mudando só a ordem dos identificadores: nada a recriar, nada a apagar.
 		const mesmo = await rodar(salvo);
 		assert.equal(mesmo.existe, true);
-		assert.equal(mesmo.ctx.requisicoes.some((r) => r.method === 'DELETE'), false);
+		assert.equal(
+			mesmo.ctx.requisicoes.some((r) => r.method === 'DELETE'),
+			false,
+		);
 		assert.equal(mesmo.ctx.estatico.webhookUuid, 'w-1');
 	});
 
 	it('C98 - falha ao apagar o antigo é registrada no log e o checkExists ainda devolve false', async () => {
-		const { ctx, existe } = await rodar({ ...salvo, event_type: 'WEBHOOK.MARKED_OPPORTUNITY' }, {}, () => {
-			throw erroHttp(500, { errors: { error_message: 'erro' } });
-		});
+		const { ctx, existe } = await rodar(
+			{ ...salvo, event_type: 'WEBHOOK.MARKED_OPPORTUNITY' },
+			{},
+			() => {
+				throw erroHttp(500, { errors: { error_message: 'erro' } });
+			},
+		);
 		assert.equal(existe, false);
 		assert.equal(ctx.avisos.length, 1);
 		assert.match(ctx.avisos[0], /w-1/);

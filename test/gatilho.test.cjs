@@ -73,15 +73,19 @@ describe('Gatilho: ativar o workflow', () => {
 
 	it('C86 - com webhookUuid ainda listado pela RD o checkExists devolve verdadeiro e nada é criado', async () => {
 		const parametros = { event: 'converted', conversionIdentifiers: '', includeRelations: [] };
-		const listado = contexto(parametros, () => ({
-			webhooks: [
-				// O webhook salvo bate com o node: mesmo evento, mesma URL e sem filtro de identificador.
-				{ uuid: 'w-1', event_type: 'WEBHOOK.CONVERTED', url: URL, event_identifiers: [] },
-				{ uuid: 'w-9' },
-			],
-		}), {
-			estatico: { webhookUuid: 'w-1' },
-		});
+		const listado = contexto(
+			parametros,
+			() => ({
+				webhooks: [
+					// O webhook salvo bate com o node: mesmo evento, mesma URL e sem filtro de identificador.
+					{ uuid: 'w-1', event_type: 'WEBHOOK.CONVERTED', url: URL, event_identifiers: [] },
+					{ uuid: 'w-9' },
+				],
+			}),
+			{
+				estatico: { webhookUuid: 'w-1' },
+			},
+		);
 		assert.equal(await metodos().checkExists.call(listado), true);
 		assert.equal(listado.requisicoes.length, 1);
 		assert.equal(listado.requisicoes[0].method, 'GET');

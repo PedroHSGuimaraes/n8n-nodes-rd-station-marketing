@@ -16,7 +16,7 @@ import type {
 	INode,
 	JsonObject,
 } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { NodeApiError, sleep } from 'n8n-workflow';
 
 import { extractItems } from './helpers';
 
@@ -112,6 +112,32 @@ function waitText(body: IDataObject): string {
 	return `Wait ${seconds} ${seconds === 1 ? 'second' : 'seconds'} and run the node again`;
 }
 
+// Retentativa no 429. O objeto é exportado para o teste trocar a espera e não dormir de verdade.
+export const rdRetry = {
+	// Total de requisições por chamada, contando a primeira (a RD limita contatos a 120 por minuto).
+	maxAttempts: 3,
+	// Espera quando a RD não diz quanto esperar: curta, porque a janela de limite é de 1 minuto.
+	defaultWaitMs: 2000,
+	// Teto de cada espera, para um valor absurdo do servidor não travar o workflow.
+	maxWaitMs: 60000,
+	// Usa o `sleep` do próprio n8n (o lint do n8n proíbe `setTimeout` solto em community node).
+	sleep: (ms: number): Promise<void> => sleep(ms),
+};
+
+// Quanto esperar antes de repetir um 429: cabeçalho Retry-After (segundos), depois o
+// `remaining_time` do corpo (milissegundos) e por fim o valor fixo.
+function retryWaitMs(error: unknown): number {
+	const header = Number(
+		pick(error, ['cause', 'response', 'headers', 'retry-after']) ??
+			pick(error, ['response', 'headers', 'retry-after']),
+	);
+	const remaining = Number(bodyOf(error).remaining_time);
+	let wait = rdRetry.defaultWaitMs;
+	if (Number.isFinite(header) && header > 0) wait = header * 1000;
+	else if (Number.isFinite(remaining) && remaining > 0) wait = remaining;
+	return Math.min(wait, rdRetry.maxWaitMs);
+}
+
 /**
  * Traduz um erro HTTP da RD em NodeApiError com mensagem e descrição legíveis.
  * Os textos de `errorHints` ganham da tradução padrão do status, e o resto vira o texto da própria RD.
@@ -187,17 +213,26 @@ export async function rdMarketingApiRequest(
 	if (Array.isArray(body) || (body && Object.keys(body).length > 0)) {
 		request.body = body as IDataObject;
 	}
-	try {
-		const credential = credentialName(authentication);
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			credential,
-			request,
-		);
-		// Nas rotas que respondem lista ou 204 o chamador usa `extractItems` ou ignora o retorno.
-		return response as IDataObject;
-	} catch (error) {
-		throw translateRdError(this.getNode(), error, itemIndex, errorHints);
+	const credential = credentialName(authentication);
+	for (let attempt = 1; ; attempt++) {
+		try {
+			const response = await this.helpers.httpRequestWithAuthentication.call(
+				this,
+				credential,
+				request,
+			);
+			// Nas rotas que respondem lista ou 204 o chamador usa `extractItems` ou ignora o retorno.
+			return response as IDataObject;
+		} catch (error) {
+			// 429: a RD recusou por excesso de requisições antes de processar, então repetir é seguro,
+			// inclusive em POST. Espera o tempo pedido e tenta de novo, até o teto de tentativas.
+			if (statusOf(error) === 429 && attempt < rdRetry.maxAttempts) {
+				await rdRetry.sleep(retryWaitMs(error));
+				continue;
+			}
+			// Qualquer outro erro, ou o 429 depois da última tentativa, sobe já traduzido.
+			throw translateRdError(this.getNode(), error, itemIndex, errorHints);
+		}
 	}
 }
 
