@@ -160,7 +160,11 @@ export class RdStationMarketingTrigger implements INodeType {
 				const sameUrl = extractItems(response, 'webhooks').filter(
 					(webhook) => webhook.url === url && webhook.uuid !== undefined,
 				);
-				if (sameUrl.length === 0) return false;
+				if (sameUrl.length === 0) {
+					// Nada com esta URL na RD (alguém apagou): o uuid guardado para ela já não existe.
+					forgetWebhook(staticData, url);
+					return false;
+				}
 				// O que o `create` mandaria hoje: evento, URL, identificadores e relações atuais do node.
 				const wanted = buildWebhookBody({
 					eventType: EVENT_TYPES[this.getNodeParameter('event') as string],

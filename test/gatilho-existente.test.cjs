@@ -224,4 +224,52 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 			false,
 		);
 	});
+
+	it('C109 - sem webhook da URL na RD, o checkExists esquece o uuid guardado para essa URL', async () => {
+		// Alguém apagou o webhook na RD: o mapa não pode seguir apontando para um uuid que não existe.
+		const ctx = contexto(
+			parametros,
+			() => ({ webhooks: [{ ...salvo, url: 'https://outra.example.com/x' }] }),
+			{
+				estatico: {
+					webhookUuids: { [URL]: 'w-1', 'https://outra.example.com/x': 'w-9' },
+					webhookUuid: 'w-1',
+				},
+			},
+		);
+		assert.equal(await metodos().checkExists.call(ctx), false);
+		assert.deepEqual(ctx.estatico.webhookUuids, { 'https://outra.example.com/x': 'w-9' });
+		assert.equal(ctx.estatico.webhookUuid, 'w-9');
+		assert.equal(
+			ctx.requisicoes.some((r) => r.method !== 'GET'),
+			false,
+		);
+	});
+
+	it('C106 - duas entradas que batem: fica a primeira, sai a segunda; sem correspondência o mapa fica vazio', async () => {
+		const ctx = contexto(
+			parametros,
+			() => ({
+				webhooks: [
+					{ ...salvo, uuid: 'c1' },
+					{ ...salvo, uuid: 'c2' },
+				],
+			}),
+			{ estatico: {} },
+		);
+		assert.equal(await metodos().checkExists.call(ctx), true);
+		assert.deepEqual(
+			ctx.requisicoes.filter((r) => r.method === 'DELETE').map((r) => r.url),
+			['/integrations/webhooks/c2'],
+		);
+		assert.deepEqual(ctx.estatico.webhookUuids, { [URL]: 'c1' });
+
+		const nenhuma = contexto(
+			parametros,
+			() => ({ webhooks: [{ ...salvo, uuid: 'd1', event_type: 'WEBHOOK.MARKED_OPPORTUNITY' }] }),
+			{ estatico: {} },
+		);
+		assert.equal(await metodos().checkExists.call(nenhuma), false);
+		assert.deepEqual(nenhuma.estatico.webhookUuids ?? {}, {});
+	});
 });

@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-108 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
+109 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -361,6 +361,9 @@ Proof: run unit | ✔ C107 -
 **C108** - Webhook da lista sem `uuid` é ignorado e nenhum "undefined" vai para o static data (terceiro Verifier)
 Proof: run unit | ✔ C108 -
 
+**C109** - Sem webhook da URL do modo na RD, o `checkExists` esquece o uuid guardado para essa URL e mantém o de outras URLs (terceiro Verifier)
+Proof: run unit | ✔ C109 -
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -379,7 +382,7 @@ Proof: run unit | ✔ C108 -
 | `listSearch` e `loadOptions` statuses (2) | 200 C42 · 401 C93 | - |
 | teste da credencial statuses (2) | 200 C94 · 401 C94 | - |
 | one-way doors (6) | nomes C91 · IDs C92 · saída das listagens C29 · static data C82 · credencial OAuth2 C9 · dependências C3 | - |
-| casos de borda do contrato por URL (3) | URL repetida C106 · static data sem mapa C107 · sem uuid C108 | - |
+| casos de borda do contrato por URL (4) | URL repetida C106 · static data sem mapa C107 · sem uuid C108 · uuid sem webhook na RD C109 | - |
 | contrato por URL do `checkExists` e do `delete` (5) | outra URL intacta C103 · mesma URL e mesma config C104 · mesma URL e config diferente C96 · delete só desta URL C105 · static data perdido C104 | - |
 | divergências do webhook salvo (4) | evento C96 · URL C97 · identificadores C97 · relações C102 | - |
 | espera do 429 (4) | Retry-After C100 · remaining_time C100 · fixa C100 · teto C100 | - |
