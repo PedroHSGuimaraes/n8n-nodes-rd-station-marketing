@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-110 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
+111 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -366,6 +366,9 @@ Proof: run unit | ✔ C109 -
 
 **C110** - O `publish.yml` publica pelo `npm@12.2.2 stage publish --provenance` com `RELEASE_MODE` e `NODE_AUTH_TOKEN` no env (token granular "stage only": a versão fica em espera até o dono aprovar na aba Staged Packages do npmjs.com), sem passo `npm publish` nem `npm run release`, com `workflow_dispatch` e na mesma versão de Node do `ci.yml`
 Proof: run unit | ✔ C110 -
+
+**C111** - O pacote se chama `@pexuleco/n8n-nodes-rd-station-marketing`, `publishConfig.access` é `public` e o README instala pelo nome com escopo (o npm recusou o nome sem escopo com E400 por colidir com `n8n-nodes-rdstation-marketing`; AD-015)
+Proof: run unit | ✔ C111 -
 
 ## Coverage
 

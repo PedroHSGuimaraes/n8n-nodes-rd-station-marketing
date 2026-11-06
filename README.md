@@ -1,4 +1,4 @@
-# n8n-nodes-rd-station-marketing
+# @pexuleco/n8n-nodes-rd-station-marketing
 
 Node community do [n8n](https://n8n.io/) para integrar seus fluxos com o **[RD Station Marketing](https://www.rdstation.com/produtos/marketing/)**.
 
@@ -19,8 +19,10 @@ O RD Station CRM e o RD Station Conversas são produtos com APIs próprias e fic
 Siga o [guia de community nodes](https://docs.n8n.io/integrations/community-nodes/installation/) do n8n. No n8n, vá em **Settings → Community Nodes → Install** e digite:
 
 ```
-n8n-nodes-rd-station-marketing
+@pexuleco/n8n-nodes-rd-station-marketing
 ```
+
+O pacote tem escopo `@pexuleco` porque o npm recusa o nome sem escopo: já existe o `n8n-nodes-rdstation-marketing`, de outra pessoa, e sem a pontuação os dois nomes ficam iguais.
 
 ## Credenciais
 

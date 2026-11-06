@@ -1,5 +1,5 @@
 {
-	"name": "n8n-nodes-rd-station-marketing",
+	"name": "@pexuleco/n8n-nodes-rd-station-marketing",
 	"version": "1.0.0",
 	"description": "n8n community node for RD Station Marketing: contacts, custom fields, funnel, segmentations, automation flows, emails, landing pages, pop-ups, forms, campaigns, analytics, events, product catalog, webhooks and a real webhook trigger.",
 	"keywords": [
