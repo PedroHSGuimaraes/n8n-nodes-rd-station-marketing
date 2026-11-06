@@ -119,6 +119,7 @@
 | C107 | `gatilho-existente.test.cjs` `C107 - static data sem o mapa por URL nunca faz o delete apagar um webhook` | yes - static data só com `webhookUuid: 'p1'` e URL de teste: assere true, zero requisições e `webhookUuid` intacto; a versão anterior de `savedUuid` (que lia o `webhookUuid` sem mapa) apagaria `p1` e falharia. Só cobre o `delete`; o `checkExists` com legado é coberto só pela sonda |
 | C108 | `gatilho-existente.test.cjs` `C108 - webhook da lista sem uuid é ignorado e nada "undefined" vai para o static data` | yes - lista só com a entrada sem `uuid`: assere false, nenhuma requisição além do GET e que o static data serializado não traz `undefined`; sem o filtro `webhook.uuid !== undefined` o código gravaria a string `"undefined"` e devolveria true. Não tem lista mista (sem `uuid` mais uma válida) |
 | C109 | `gatilho-existente.test.cjs` `C109 - sem webhook da URL na RD, o checkExists esquece o uuid guardado para essa URL` | yes - escrito pelo autor a partir do achado do terceiro Verifier (o `return false` saía antes de `forgetWebhook`); não passou por um quarto Verifier |
+| C110 | `publish-workflow.test.cjs` (4 casos C110) | yes - lê só linhas `run:`, então comentário que cita o comando não conta; falha sem passo `npm@12.2.2 stage publish ... --provenance`, falha se voltar `npm publish` ou `npm run release`, exige `RELEASE_MODE` e `NODE_AUTH_TOKEN` dentro do bloco do próprio passo, `workflow_dispatch`, `id-token: write` e a mesma `node-version` do `ci.yml` (julgado pelo orquestrador, que não escreveu o teste) |
 
 ## Findings
 
