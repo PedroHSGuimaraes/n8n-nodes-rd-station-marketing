@@ -36,7 +36,7 @@ async function rodar(webhookNaRd, extras = {}, responderApagar) {
 			if (opcoes.method === 'DELETE') return responderApagar ? responderApagar() : undefined;
 			return { webhooks: [webhookNaRd] };
 		},
-		{ estatico: { webhookUuid: 'w-1' }, ...extras },
+		{ estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } }, ...extras },
 	);
 	const existe = await metodos().checkExists.call(ctx);
 	return { ctx, existe };
@@ -97,7 +97,7 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		const ctx = contexto(
 			{ ...parametros, includeRelations: ['COMPANY', 'CONTACT_FUNNEL'] },
 			() => ({ webhooks: [salvo] }),
-			{ estatico: { webhookUuid: 'w-1' } },
+			{ estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } } },
 		);
 		assert.equal(await metodos().checkExists.call(ctx), true);
 
@@ -105,7 +105,7 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		const igual = contexto(
 			{ ...parametros, includeRelations: ['COMPANY', 'CONTACT_FUNNEL'] },
 			() => ({ webhooks: [{ ...salvo, include_relations: ['CONTACT_FUNNEL', 'COMPANY'] }] }),
-			{ estatico: { webhookUuid: 'w-1' } },
+			{ estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } } },
 		);
 		assert.equal(await metodos().checkExists.call(igual), true);
 	});
@@ -116,7 +116,10 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 			parametros,
 			() => ({ webhooks: [producao] }),
 			// O static data guarda o uuid de produção; o node roda agora com a URL de teste.
-			{ estatico: { webhookUuid: 'w-1' }, urlWebhook: 'https://n8n.example.com/webhook-test/abc' },
+			{
+				estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } },
+				urlWebhook: 'https://n8n.example.com/webhook-test/abc',
+			},
 		);
 		assert.equal(await metodos().checkExists.call(ctx), false);
 		assert.equal(
@@ -132,6 +135,7 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		const ctx = contexto(parametros, () => ({ webhooks: [salvo] }), { estatico: {} });
 		assert.equal(await metodos().checkExists.call(ctx), true);
 		assert.equal(ctx.estatico.webhookUuid, 'w-1');
+		assert.deepEqual(ctx.estatico.webhookUuids, { [URL]: 'w-1' });
 		assert.equal(
 			ctx.requisicoes.some((r) => r.method !== 'GET'),
 			false,
@@ -160,5 +164,64 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		});
 		assert.equal(await metodos().delete.call(semUuid), true);
 		assert.equal(semUuid.requisicoes.length, 0);
+	});
+
+	it('C106 - duas entradas com a mesma URL: mantém a que bate, apaga as outras e guarda a que ficou', async () => {
+		const ctx = contexto(
+			parametros,
+			() => ({
+				webhooks: [
+					{ ...salvo, uuid: 'a1', event_type: 'WEBHOOK.MARKED_OPPORTUNITY' },
+					{ ...salvo, uuid: 'a2' },
+				],
+			}),
+			{ estatico: {} },
+		);
+		assert.equal(await metodos().checkExists.call(ctx), true);
+		assert.deepEqual(
+			ctx.requisicoes.filter((r) => r.method === 'DELETE').map((r) => r.url),
+			['/integrations/webhooks/a1'],
+		);
+		assert.deepEqual(ctx.estatico.webhookUuids, { [URL]: 'a2' });
+
+		// Nenhuma bate: apaga as duas e devolve false para o n8n criar uma nova.
+		const nenhuma = contexto(
+			parametros,
+			() => ({
+				webhooks: [
+					{ ...salvo, uuid: 'b1', event_type: 'WEBHOOK.MARKED_OPPORTUNITY' },
+					{ ...salvo, uuid: 'b2', event_identifiers: ['x'] },
+				],
+			}),
+			{ estatico: {} },
+		);
+		assert.equal(await metodos().checkExists.call(nenhuma), false);
+		assert.deepEqual(
+			nenhuma.requisicoes.filter((r) => r.method === 'DELETE').map((r) => r.url),
+			['/integrations/webhooks/b1', '/integrations/webhooks/b2'],
+		);
+	});
+
+	it('C107 - static data sem o mapa por URL nunca faz o delete apagar um webhook', async () => {
+		// Só existe o webhookUuid antigo, sem saber de qual URL ele é: apagar poderia atingir produção.
+		const emTeste = contexto({}, () => undefined, {
+			estatico: { webhookUuid: 'p1' },
+			urlWebhook: 'https://n8n.example.com/webhook-test/abc',
+		});
+		assert.equal(await metodos().delete.call(emTeste), true);
+		assert.equal(emTeste.requisicoes.length, 0);
+		assert.equal(emTeste.estatico.webhookUuid, 'p1');
+	});
+
+	it('C108 - webhook da lista sem uuid é ignorado e nada "undefined" vai para o static data', async () => {
+		const ctx = contexto(parametros, () => ({ webhooks: [{ ...salvo, uuid: undefined }] }), {
+			estatico: {},
+		});
+		assert.equal(await metodos().checkExists.call(ctx), false);
+		assert.equal(JSON.stringify(ctx.estatico).includes('undefined'), false);
+		assert.equal(
+			ctx.requisicoes.some((r) => r.method !== 'GET'),
+			false,
+		);
 	});
 });

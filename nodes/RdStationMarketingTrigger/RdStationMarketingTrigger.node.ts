@@ -62,10 +62,12 @@ function rememberWebhook(staticData: IDataObject, url: string, uuid: string): vo
 	staticData.webhookUuid = uuid;
 }
 
-// Lê o uuid guardado para esta URL. Sem o mapa (workflow salvo antes dele) vale o `webhookUuid` antigo.
+// Lê o uuid guardado para esta URL. Só o mapa vale: o `webhookUuid` solto não diz de qual URL é, e
+// apagar por ele poderia atingir o webhook de outro modo (o pacote ainda não foi publicado, então
+// nenhum workflow salvo depende da chave antiga).
 function savedUuid(staticData: IDataObject, url: string): string | undefined {
 	const map = staticData.webhookUuids as UuidByUrl | undefined;
-	return map ? map[url] : (staticData.webhookUuid as string | undefined);
+	return map ? map[url] : undefined;
 }
 
 // Esquece o uuid desta URL sem tocar no de outra URL.
@@ -153,9 +155,12 @@ export class RdStationMarketingTrigger implements INodeType {
 				const staticData = this.getWorkflowStaticData('node');
 				const url = this.getNodeWebhookUrl('default') as string;
 				const response = await rdMarketingApiRequest.call(this, 'GET', '/integrations/webhooks');
-				// A RD lista só os webhooks criados pela mesma integração.
-				const mine = extractItems(response, 'webhooks').find((webhook) => webhook.url === url);
-				if (!mine) return false;
+				// A RD lista só os webhooks criados pela mesma integração. Entrada sem `uuid` não dá para
+				// apagar nem guardar, então é ignorada.
+				const sameUrl = extractItems(response, 'webhooks').filter(
+					(webhook) => webhook.url === url && webhook.uuid !== undefined,
+				);
+				if (sameUrl.length === 0) return false;
 				// O que o `create` mandaria hoje: evento, URL, identificadores e relações atuais do node.
 				const wanted = buildWebhookBody({
 					eventType: EVENT_TYPES[this.getNodeParameter('event') as string],
@@ -163,20 +168,28 @@ export class RdStationMarketingTrigger implements INodeType {
 					identifiers: this.getNodeParameter('conversionIdentifiers', '') as string,
 					relations: this.getNodeParameter('includeRelations', []) as string[],
 				});
-				if (sameWebhook(mine, wanted)) {
-					// Já existe como o node pede: guarda o uuid (o static data pode ter se perdido) e segue.
-					rememberWebhook(staticData, url, String(mine.uuid));
-					return true;
+				// Fica uma só entrada: a primeira que bate com o node. As outras com esta URL são velhas
+				// ou repetidas (a RD mandaria cada evento duas vezes), então saem.
+				const keep = sameUrl.find((webhook) => sameWebhook(webhook, wanted));
+				for (const webhook of sameUrl) {
+					if (webhook === keep) continue;
+					try {
+						await rdMarketingApiRequest.call(
+							this,
+							'DELETE',
+							`/integrations/webhooks/${webhook.uuid}`,
+						);
+					} catch (error) {
+						// Se a RD recusar apagar, o `create` ainda roda; o webhook velho fica para limpeza manual.
+						this.logger.warn(
+							`RD Station Marketing: could not delete the outdated webhook ${String(webhook.uuid)}: ${(error as Error).message}`,
+						);
+					}
 				}
-				// O webhook desta URL está velho (a pessoa mudou o evento ou o filtro). Apaga-o para a RD
-				// não mandar eventos errados, e devolve false para o n8n chamar o `create`.
-				try {
-					await rdMarketingApiRequest.call(this, 'DELETE', `/integrations/webhooks/${mine.uuid}`);
-				} catch (error) {
-					// Se a RD recusar apagar, o `create` ainda roda; o webhook velho fica para limpeza manual.
-					this.logger.warn(
-						`RD Station Marketing: could not delete the outdated webhook ${String(mine.uuid)}: ${(error as Error).message}`,
-					);
+				if (keep) {
+					// Já existe como o node pede: guarda o uuid (o static data pode ter se perdido) e segue.
+					rememberWebhook(staticData, url, String(keep.uuid));
+					return true;
 				}
 				forgetWebhook(staticData, url);
 				return false;

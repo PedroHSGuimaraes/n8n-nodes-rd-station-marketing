@@ -83,7 +83,7 @@ describe('Gatilho: ativar o workflow', () => {
 				],
 			}),
 			{
-				estatico: { webhookUuid: 'w-1' },
+				estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } },
 			},
 		);
 		assert.equal(await metodos().checkExists.call(listado), true);
@@ -92,7 +92,7 @@ describe('Gatilho: ativar o workflow', () => {
 
 		// Sumiu da RD (alguém apagou lá): o workflow precisa criar de novo.
 		const sumido = contexto(parametros, () => ({ webhooks: [{ uuid: 'outro' }] }), {
-			estatico: { webhookUuid: 'w-1' },
+			estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } },
 		});
 		assert.equal(await metodos().checkExists.call(sumido), false);
 
@@ -106,7 +106,9 @@ describe('Gatilho: ativar o workflow', () => {
 
 describe('Gatilho: desativar o workflow', () => {
 	it('C87 - delete chama DELETE e limpa o uuid; 404 conta como apagado; 500 lança NodeApiError', async () => {
-		const apagado = contexto({}, () => undefined, { estatico: { webhookUuid: 'w-1' } });
+		const apagado = contexto({}, () => undefined, {
+			estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } },
+		});
 		assert.equal(await metodos().delete.call(apagado), true);
 		assert.equal(apagado.requisicoes[0].method, 'DELETE');
 		assert.equal(apagado.requisicoes[0].url, '/integrations/webhooks/w-1');
@@ -118,7 +120,7 @@ describe('Gatilho: desativar o workflow', () => {
 			() => {
 				throw erroHttp(404, { errors: { error_type: 'RESOURCE_NOT_FOUND' } });
 			},
-			{ estatico: { webhookUuid: 'w-1' } },
+			{ estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } } },
 		);
 		assert.equal(await metodos().delete.call(jaApagado), true);
 		assert.equal('webhookUuid' in jaApagado.estatico, false);
@@ -129,7 +131,7 @@ describe('Gatilho: desativar o workflow', () => {
 			() => {
 				throw erroHttp(500, { errors: { error_message: 'erro' } });
 			},
-			{ estatico: { webhookUuid: 'w-1' } },
+			{ estatico: { webhookUuid: 'w-1', webhookUuids: { [URL]: 'w-1' } } },
 		);
 		await assert.rejects(metodos().delete.call(falha), (erro) => {
 			assert.equal(erro.name, 'NodeApiError');
