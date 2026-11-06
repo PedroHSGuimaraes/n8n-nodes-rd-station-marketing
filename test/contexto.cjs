@@ -9,10 +9,11 @@
 
 // Erro que imita o que o n8n lança quando a RD responde fora de 2xx: o NodeApiError traz o status
 // em `httpCode` e a resposta original da RD em `cause.response`.
-function erroHttp(status, corpo) {
+function erroHttp(status, corpo, cabecalhos = {}) {
 	const erro = new Error(`Request failed with status code ${status}`);
 	erro.httpCode = String(status);
-	erro.cause = { response: { status, data: corpo } };
+	// Os cabeçalhos entram como a RD os manda, por exemplo `retry-after` em segundos no 429.
+	erro.cause = { response: { status, data: corpo, headers: cabecalhos } };
 	return erro;
 }
 
@@ -43,6 +44,9 @@ function contexto(parametros, responder, extras = {}) {
 		},
 		// Usado pelo `loadOptions`, que lê o que a pessoa já preencheu na tela (ex.: o fluxo escolhido).
 		getCurrentNodeParameter: (nome) => doItem(0)[nome],
+		// Registro dos avisos que o node escreve no log do n8n (ex.: falha ao apagar webhook antigo).
+		avisos: [],
+		logger: { warn: (mensagem) => ctx.avisos.push(mensagem) },
 		getWorkflowStaticData: () => estatico,
 		getNodeWebhookUrl: () => extras.urlWebhook || 'https://n8n.example.com/webhook/abc',
 		getBodyData: () => extras.corpoWebhook || {},

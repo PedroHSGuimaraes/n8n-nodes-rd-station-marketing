@@ -320,6 +320,17 @@ Proof: run unit | ✔ C94 -
 **C95** - O gatilho declara o webhook `POST` no caminho `webhook` e responde na hora; o `404` com o workflow desativado é do n8n (Surface, gatilho)
 Proof: run unit | ✔ C95 -
 
+### S13 - achados da revisão the-judge (acrescentados depois da validação)
+
+**C96** - Com o webhook salvo em outro evento, o `checkExists` devolve false e apaga o webhook antigo (the-judge F2)
+Proof: run unit | ✔ C96 -
+
+**C97** - URL diferente ou identificadores diferentes também recriam; a ordem dos identificadores não importa (the-judge F2)
+Proof: run unit | ✔ C97 -
+
+**C98** - Falha ao apagar o webhook antigo vai para o log e o `checkExists` ainda devolve false (the-judge F2)
+Proof: run unit | ✔ C98 -
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -338,6 +349,7 @@ Proof: run unit | ✔ C95 -
 | `listSearch` e `loadOptions` statuses (2) | 200 C42 · 401 C93 | - |
 | teste da credencial statuses (2) | 200 C94 · 401 C94 | - |
 | one-way doors (6) | nomes C91 · IDs C92 · saída das listagens C29 · static data C82 · credencial OAuth2 C9 · dependências C3 | - |
+| divergências do webhook salvo (3) | evento C96 · URL C97 · identificadores C97 | - |
 | exemplos de paginação, AC S6.1 (2) | 125+40 C40 · 125+0 C40 | - |
 | exemplos de `remaining_time` (3) | 43067 C15 · 1000 C15 · ausente C15 | - |
 | webhook DELETE status (3) | 204 C87 · 404 C87 · 500 C87 | - |

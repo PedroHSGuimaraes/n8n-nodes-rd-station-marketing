@@ -31,6 +31,18 @@ const EVENT_TYPES: Record<string, string> = {
 	markedOpportunity: WEBHOOK_MARKED_OPPORTUNITY,
 };
 
+// Diz se o webhook salvo na RD é igual ao que o node pede agora: mesmo evento, mesma URL e os mesmos
+// identificadores de conversão (a ordem não importa; ausente e lista vazia são a mesma coisa).
+function sameWebhook(saved: IDataObject, wanted: IDataObject): boolean {
+	const normalize = (value: unknown): string[] =>
+		(Array.isArray(value) ? (value as string[]) : []).map(String).sort();
+	return (
+		saved.event_type === wanted.event_type &&
+		saved.url === wanted.url &&
+		normalize(saved.event_identifiers).join('\n') === normalize(wanted.event_identifiers).join('\n')
+	);
+}
+
 // Texto que explica as duas causas de a RD recusar a URL do webhook.
 const URL_HELP = 'RD Station only accepts public HTTPS URLs that answer with a 2xx status';
 
@@ -104,7 +116,27 @@ export class RdStationMarketingTrigger implements INodeType {
 				if (!uuid) return false;
 				const response = await rdMarketingApiRequest.call(this, 'GET', '/integrations/webhooks');
 				// A RD lista só os webhooks criados pela mesma integração; o nosso `uuid` tem de estar lá.
-				return extractItems(response, 'webhooks').some((webhook) => webhook.uuid === uuid);
+				const saved = extractItems(response, 'webhooks').find((webhook) => webhook.uuid === uuid);
+				if (!saved) return false;
+				// O que o `create` mandaria hoje: evento, URL e identificadores atuais do node.
+				const wanted = buildWebhookBody({
+					eventType: EVENT_TYPES[this.getNodeParameter('event') as string],
+					url: this.getNodeWebhookUrl('default') as string,
+					identifiers: this.getNodeParameter('conversionIdentifiers', '') as string,
+				});
+				if (sameWebhook(saved, wanted)) return true;
+				// O webhook salvo está velho (a pessoa mudou o evento, a URL ou o filtro). Apaga o antigo
+				// para a RD não mandar eventos errados, e devolve false para o n8n chamar o `create`.
+				try {
+					await rdMarketingApiRequest.call(this, 'DELETE', `/integrations/webhooks/${uuid}`);
+				} catch (error) {
+					// Se a RD recusar apagar, o `create` ainda roda; o webhook velho fica para limpeza manual.
+					this.logger.warn(
+						`RD Station Marketing: could not delete the outdated webhook ${uuid}: ${(error as Error).message}`,
+					);
+				}
+				delete staticData.webhookUuid;
+				return false;
 			},
 
 			// Cadastra o webhook com a URL de produção do n8n e guarda o `uuid` para apagar depois.
