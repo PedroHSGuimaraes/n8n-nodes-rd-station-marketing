@@ -403,7 +403,7 @@ Proof: run unit | ✔ C108 -
 ## Handoff
 
 - **Settled mid-build:** 06/11/2026, lead (a pedido, depois do segundo Verifier): o `checkExists` do gatilho procura o webhook pela URL deste modo e nunca apaga nem altera webhook de outra URL; o `delete` apaga só o uuid guardado para a URL do modo (AD-013). 06/11/2026, dono: a tag `v1.0.0` só sai depois que ele testar com conta real (renovação do token OAuth2 e campos `cf_*`). O pacote fica com version 1.0.0, CHANGELOG, CI e publish prontos, sem tag, e o README explica o teste local com `npm run dev`. O `npm view` do C6 espera essa tag.
-- **Dispatched:** Verifier (sonnet, sub-agente novo) em 06/11/2026 sobre o `HEAD` que contém este commit; returned: sim, FAIL com 8 achados; fechados em `f135d01`; segundo Verifier (sonnet, sub-agente novo) só para C96 a C101 dos achados da the-judge, no `HEAD` que contém este commit; returned: não; terceiro Verifier (sonnet, sub-agente novo) para C102 a C105 no `HEAD` que contém este commit; returned: não
+- **Dispatched:** Verifier (sonnet, sub-agente novo) em 06/11/2026 sobre o `HEAD` que contém este commit; returned: sim, FAIL com 8 achados; fechados em `f135d01`; segundo Verifier (sonnet, sub-agente novo) só para C96 a C101 dos achados da the-judge, no `HEAD` que contém este commit; returned: não; terceiro Verifier (sonnet, sub-agente novo) para C102 a C105 em `a9cb7c4`; returned: sim, 5 achados fechados em `f059248`; o mesmo Verifier retomado para C106 a C108 no `HEAD` que contém este commit; returned: não
 - **Boundary:** C1-C95 fechados e `check_proofs.py` com 98 pass e 0 fail em `6de2a8d` e, depois da correção do Verifier, 98 pass em `f135d01`
 - **Abandoned:** none
 - **Walked:** n/a - sem tela do repositório; o editor do n8n é testado pelo dono com `npm run dev`
