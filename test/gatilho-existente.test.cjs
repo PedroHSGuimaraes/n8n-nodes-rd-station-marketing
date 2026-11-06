@@ -51,11 +51,10 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 		assert.equal('webhookUuid' in ctx.estatico, false);
 	});
 
-	it('C97 - URL diferente e identificadores diferentes também recriam; a ordem dos identificadores não importa', async () => {
-		const outraUrl = await rodar({ ...salvo, url: 'https://n8n.example.com/webhook/velha' });
-		assert.equal(outraUrl.existe, false);
+	it('C97 - identificadores diferentes recriam e a ordem não importa; webhook de URL diferente nunca é apagado', async () => {
 		const outrosIds = await rodar({ ...salvo, event_identifiers: ['newsletter'] });
 		assert.equal(outrosIds.existe, false);
+		assert.equal(outrosIds.ctx.requisicoes.filter((r) => r.method === 'DELETE').length, 1);
 		// Igual mudando só a ordem dos identificadores: nada a recriar, nada a apagar.
 		const mesmo = await rodar(salvo);
 		assert.equal(mesmo.existe, true);
@@ -64,6 +63,13 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 			false,
 		);
 		assert.equal(mesmo.ctx.estatico.webhookUuid, 'w-1');
+		// URL diferente é de outro modo ou de outro workflow: o node não o enxerga como dele.
+		const outraUrl = await rodar({ ...salvo, url: 'https://n8n.example.com/webhook/velha' });
+		assert.equal(outraUrl.existe, false);
+		assert.equal(
+			outraUrl.ctx.requisicoes.some((r) => r.method === 'DELETE'),
+			false,
+		);
 	});
 
 	it('C98 - falha ao apagar o antigo é registrada no log e o checkExists ainda devolve false', async () => {
@@ -102,5 +108,57 @@ describe('Gatilho: webhook salvo diferente do node', () => {
 			{ estatico: { webhookUuid: 'w-1' } },
 		);
 		assert.equal(await metodos().checkExists.call(igual), true);
+	});
+
+	it('C103 - modo de teste: webhook de produção com outra URL não é apagado nem alterado', async () => {
+		const producao = { ...salvo, url: 'https://n8n.example.com/webhook/PRODUCAO' };
+		const ctx = contexto(
+			parametros,
+			() => ({ webhooks: [producao] }),
+			// O static data guarda o uuid de produção; o node roda agora com a URL de teste.
+			{ estatico: { webhookUuid: 'w-1' }, urlWebhook: 'https://n8n.example.com/webhook-test/abc' },
+		);
+		assert.equal(await metodos().checkExists.call(ctx), false);
+		assert.equal(
+			ctx.requisicoes.some((r) => r.method !== 'GET'),
+			false,
+		);
+		// O uuid de produção continua guardado para a desativação real apagar o webhook certo.
+		assert.equal(ctx.estatico.webhookUuid, 'w-1');
+	});
+
+	it('C104 - achou pela URL deste modo com a mesma configuração: guarda o uuid e devolve true', async () => {
+		// Static data vazio (por exemplo depois de um reinício), mas o webhook deste modo já existe na RD.
+		const ctx = contexto(parametros, () => ({ webhooks: [salvo] }), { estatico: {} });
+		assert.equal(await metodos().checkExists.call(ctx), true);
+		assert.equal(ctx.estatico.webhookUuid, 'w-1');
+		assert.equal(
+			ctx.requisicoes.some((r) => r.method !== 'GET'),
+			false,
+		);
+	});
+
+	it('C105 - delete apaga só o uuid guardado para a URL deste modo', async () => {
+		const teste = 'https://n8n.example.com/webhook-test/abc';
+		const mapa = { [URL]: 'w-prod', [teste]: 'w-teste' };
+		// Desativar no modo de teste: apaga só o webhook de teste, e o de produção continua guardado.
+		const emTeste = contexto({}, () => undefined, {
+			estatico: { webhookUuids: { ...mapa }, webhookUuid: 'w-prod' },
+			urlWebhook: teste,
+		});
+		assert.equal(await metodos().delete.call(emTeste), true);
+		assert.deepEqual(
+			emTeste.requisicoes.map((r) => `${r.method} ${r.url}`),
+			['DELETE /integrations/webhooks/w-teste'],
+		);
+		assert.deepEqual(emTeste.estatico.webhookUuids, { [URL]: 'w-prod' });
+		assert.equal(emTeste.estatico.webhookUuid, 'w-prod');
+		// Sem uuid guardado para esta URL, nada é apagado e o delete termina com sucesso.
+		const semUuid = contexto({}, () => undefined, {
+			estatico: { webhookUuids: { [URL]: 'w-prod' } },
+			urlWebhook: teste,
+		});
+		assert.equal(await metodos().delete.call(semUuid), true);
+		assert.equal(semUuid.requisicoes.length, 0);
 	});
 });

@@ -96,10 +96,11 @@ describe('Gatilho: ativar o workflow', () => {
 		});
 		assert.equal(await metodos().checkExists.call(sumido), false);
 
-		// Nunca criado: nem pergunta à RD.
+		// Nunca criado por este workflow: a RD é consultada mesmo assim, porque o webhook com a URL
+		// deste modo pode existir (criado antes de um reinício) e então não se cria um segundo.
 		const novo = contexto(parametros, () => ({ webhooks: [] }));
 		assert.equal(await metodos().checkExists.call(novo), false);
-		assert.equal(novo.requisicoes.length, 0);
+		assert.equal(novo.requisicoes.length, 1);
 	});
 });
 

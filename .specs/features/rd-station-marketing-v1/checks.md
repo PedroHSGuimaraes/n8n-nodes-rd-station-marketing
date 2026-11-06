@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-102 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
+105 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -325,7 +325,7 @@ Proof: run unit | ✔ C95 -
 **C96** - Com o webhook salvo em outro evento, o `checkExists` devolve false e apaga o webhook antigo (the-judge F2)
 Proof: run unit | ✔ C96 -
 
-**C97** - URL diferente ou identificadores diferentes também recriam; a ordem dos identificadores não importa (the-judge F2)
+**C97** - Identificadores diferentes recriam e a ordem não importa; webhook de URL diferente nunca é apagado (the-judge F2, revisado pelo contrato por URL do lead em 06/11/2026)
 Proof: run unit | ✔ C97 -
 
 **C98** - Falha ao apagar o webhook antigo vai para o log e o `checkExists` ainda devolve false (the-judge F2)
@@ -342,6 +342,15 @@ Proof: run unit | ✔ C101 -
 
 **C102** - Include Relations diferente recria o webhook; relações ausentes na lista da RD não forçam recriação (Verifier, segundo round)
 Proof: run unit | ✔ C102 -
+
+**C103** - No modo de teste, o webhook de produção (outra URL) não é apagado nem alterado e o uuid dele continua guardado (contrato por URL)
+Proof: run unit | ✔ C103 -
+
+**C104** - Achado pela URL deste modo com a mesma configuração, o `checkExists` guarda o uuid e devolve true sem DELETE (contrato por URL)
+Proof: run unit | ✔ C104 -
+
+**C105** - O `delete` apaga só o uuid guardado para a URL deste modo e não faz nada sem uuid para ela (contrato por URL)
+Proof: run unit | ✔ C105 -
 
 ## Coverage
 
@@ -361,6 +370,7 @@ Proof: run unit | ✔ C102 -
 | `listSearch` e `loadOptions` statuses (2) | 200 C42 · 401 C93 | - |
 | teste da credencial statuses (2) | 200 C94 · 401 C94 | - |
 | one-way doors (6) | nomes C91 · IDs C92 · saída das listagens C29 · static data C82 · credencial OAuth2 C9 · dependências C3 | - |
+| contrato por URL do `checkExists` e do `delete` (5) | outra URL intacta C103 · mesma URL e mesma config C104 · mesma URL e config diferente C96 · delete só desta URL C105 · static data perdido C104 | - |
 | divergências do webhook salvo (4) | evento C96 · URL C97 · identificadores C97 · relações C102 | - |
 | espera do 429 (4) | Retry-After C100 · remaining_time C100 · fixa C100 · teto C100 | - |
 | exemplos de paginação, AC S6.1 (2) | 125+40 C40 · 125+0 C40 | - |
@@ -382,7 +392,7 @@ Proof: run unit | ✔ C102 -
 
 ## Handoff
 
-- **Settled mid-build:** 06/11/2026, dono: a tag `v1.0.0` só sai depois que ele testar com conta real (renovação do token OAuth2 e campos `cf_*`). O pacote fica com version 1.0.0, CHANGELOG, CI e publish prontos, sem tag, e o README explica o teste local com `npm run dev`. O `npm view` do C6 espera essa tag.
+- **Settled mid-build:** 06/11/2026, lead (a pedido, depois do segundo Verifier): o `checkExists` do gatilho procura o webhook pela URL deste modo e nunca apaga nem altera webhook de outra URL; o `delete` apaga só o uuid guardado para a URL do modo (AD-013). 06/11/2026, dono: a tag `v1.0.0` só sai depois que ele testar com conta real (renovação do token OAuth2 e campos `cf_*`). O pacote fica com version 1.0.0, CHANGELOG, CI e publish prontos, sem tag, e o README explica o teste local com `npm run dev`. O `npm view` do C6 espera essa tag.
 - **Dispatched:** Verifier (sonnet, sub-agente novo) em 06/11/2026 sobre o `HEAD` que contém este commit; returned: sim, FAIL com 8 achados; fechados em `f135d01`; segundo Verifier (sonnet, sub-agente novo) só para C96 a C101 dos achados da the-judge, no `HEAD` que contém este commit; returned: não
 - **Boundary:** C1-C95 fechados e `check_proofs.py` com 98 pass e 0 fail em `6de2a8d` e, depois da correção do Verifier, 98 pass em `f135d01`
 - **Abandoned:** none

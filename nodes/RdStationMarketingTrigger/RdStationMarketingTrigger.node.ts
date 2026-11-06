@@ -49,6 +49,38 @@ function sameWebhook(saved: IDataObject, wanted: IDataObject): boolean {
 	);
 }
 
+// O static data guarda o uuid do webhook por URL (`webhookUuids`): o modo de produção e o modo de teste
+// do n8n usam URLs diferentes e podem coexistir no mesmo workflow, e cada um só pode mexer no seu.
+// A chave `webhookUuid` guarda o último uuid gravado (porta de uma via dos workflows já salvos).
+type UuidByUrl = Record<string, string>;
+
+// Grava o uuid do webhook desta URL.
+function rememberWebhook(staticData: IDataObject, url: string, uuid: string): void {
+	const map = (staticData.webhookUuids ?? {}) as UuidByUrl;
+	map[url] = uuid;
+	staticData.webhookUuids = map;
+	staticData.webhookUuid = uuid;
+}
+
+// Lê o uuid guardado para esta URL. Sem o mapa (workflow salvo antes dele) vale o `webhookUuid` antigo.
+function savedUuid(staticData: IDataObject, url: string): string | undefined {
+	const map = staticData.webhookUuids as UuidByUrl | undefined;
+	return map ? map[url] : (staticData.webhookUuid as string | undefined);
+}
+
+// Esquece o uuid desta URL sem tocar no de outra URL.
+function forgetWebhook(staticData: IDataObject, url: string): void {
+	const uuid = savedUuid(staticData, url);
+	const map = staticData.webhookUuids as UuidByUrl | undefined;
+	if (map) delete map[url];
+	// Se o `webhookUuid` apontava para este uuid, passa para o de outra URL (se houver) ou some.
+	if (uuid !== undefined && staticData.webhookUuid === uuid) {
+		const other = map ? Object.values(map)[0] : undefined;
+		if (other) staticData.webhookUuid = other;
+		else delete staticData.webhookUuid;
+	}
+}
+
 // Texto que explica as duas causas de a RD recusar a URL do webhook.
 const URL_HELP = 'RD Station only accepts public HTTPS URLs that answer with a 2xx status';
 
@@ -115,34 +147,38 @@ export class RdStationMarketingTrigger implements INodeType {
 	webhookMethods = {
 		default: {
 			// O n8n pergunta se o webhook já existe para não criar um segundo na reativação.
+			// A busca é pela URL deste modo: webhook de outra URL é de outro modo (produção ou teste) ou
+			// de outro workflow, e este node nunca o apaga nem o altera.
 			async checkExists(this: IHookFunctions): Promise<boolean> {
 				const staticData = this.getWorkflowStaticData('node');
-				const uuid = staticData.webhookUuid as string | undefined;
-				// Nunca criado por este workflow: nem vale perguntar à RD.
-				if (!uuid) return false;
+				const url = this.getNodeWebhookUrl('default') as string;
 				const response = await rdMarketingApiRequest.call(this, 'GET', '/integrations/webhooks');
-				// A RD lista só os webhooks criados pela mesma integração; o nosso `uuid` tem de estar lá.
-				const saved = extractItems(response, 'webhooks').find((webhook) => webhook.uuid === uuid);
-				if (!saved) return false;
-				// O que o `create` mandaria hoje: evento, URL e identificadores atuais do node.
+				// A RD lista só os webhooks criados pela mesma integração.
+				const mine = extractItems(response, 'webhooks').find((webhook) => webhook.url === url);
+				if (!mine) return false;
+				// O que o `create` mandaria hoje: evento, URL, identificadores e relações atuais do node.
 				const wanted = buildWebhookBody({
 					eventType: EVENT_TYPES[this.getNodeParameter('event') as string],
-					url: this.getNodeWebhookUrl('default') as string,
+					url,
 					identifiers: this.getNodeParameter('conversionIdentifiers', '') as string,
 					relations: this.getNodeParameter('includeRelations', []) as string[],
 				});
-				if (sameWebhook(saved, wanted)) return true;
-				// O webhook salvo está velho (a pessoa mudou o evento, a URL ou o filtro). Apaga o antigo
-				// para a RD não mandar eventos errados, e devolve false para o n8n chamar o `create`.
+				if (sameWebhook(mine, wanted)) {
+					// Já existe como o node pede: guarda o uuid (o static data pode ter se perdido) e segue.
+					rememberWebhook(staticData, url, String(mine.uuid));
+					return true;
+				}
+				// O webhook desta URL está velho (a pessoa mudou o evento ou o filtro). Apaga-o para a RD
+				// não mandar eventos errados, e devolve false para o n8n chamar o `create`.
 				try {
-					await rdMarketingApiRequest.call(this, 'DELETE', `/integrations/webhooks/${uuid}`);
+					await rdMarketingApiRequest.call(this, 'DELETE', `/integrations/webhooks/${mine.uuid}`);
 				} catch (error) {
 					// Se a RD recusar apagar, o `create` ainda roda; o webhook velho fica para limpeza manual.
 					this.logger.warn(
-						`RD Station Marketing: could not delete the outdated webhook ${uuid}: ${(error as Error).message}`,
+						`RD Station Marketing: could not delete the outdated webhook ${String(mine.uuid)}: ${(error as Error).message}`,
 					);
 				}
-				delete staticData.webhookUuid;
+				forgetWebhook(staticData, url);
 				return false;
 			},
 
@@ -166,15 +202,17 @@ export class RdStationMarketingTrigger implements INodeType {
 				});
 				// Sem `uuid` não há como apagar o webhook depois; tratar como falha evita webhook órfão.
 				if (created.uuid === undefined) return false;
-				staticData.webhookUuid = created.uuid;
+				rememberWebhook(staticData, body.url as string, String(created.uuid));
 				return true;
 			},
 
-			// Apaga o webhook da RD ao desativar o workflow e esquece o `uuid`.
+			// Apaga o webhook da RD ao desativar o workflow. Só apaga o uuid guardado para a URL deste
+			// modo; sem uuid para ela (por exemplo, só existe o de produção) não há nada a apagar.
 			async delete(this: IHookFunctions): Promise<boolean> {
 				const staticData = this.getWorkflowStaticData('node');
-				const uuid = staticData.webhookUuid as string | undefined;
-				// Nada a apagar: o workflow nunca chegou a cadastrar webhook.
+				const url = this.getNodeWebhookUrl('default') as string;
+				const uuid = savedUuid(staticData, url);
+				// Nada a apagar para esta URL.
 				if (!uuid) return true;
 				try {
 					await rdMarketingApiRequest.call(this, 'DELETE', `/integrations/webhooks/${uuid}`);
@@ -188,7 +226,7 @@ export class RdStationMarketingTrigger implements INodeType {
 							: new NodeApiError(this.getNode(), error as JsonObject);
 					}
 				}
-				delete staticData.webhookUuid;
+				forgetWebhook(staticData, url);
 				return true;
 			},
 		},
