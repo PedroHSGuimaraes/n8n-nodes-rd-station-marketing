@@ -9,7 +9,7 @@
 
 Hoje quem usa o RD Station Marketing no n8n monta cada chamada à mão no node HTTP Request: cria o app na App Store da RD, faz o fluxo OAuth2 com um formato de token próprio (client id e secret no corpo, refresh em JSON), descobre à mão o identificador de cada segmentação, fluxo, campo personalizado e e-mail, e pagina listas cujo envelope muda a cada rota. Para receber conversões, a pessoa cadastra o webhook no painel ou por `POST` manual e não tem como apagá-lo quando desativa o workflow. O pacote `n8n-nodes-rd-station-crm` só cobre o RD Station CRM, e a guideline de verificação do n8n exige um serviço por pacote. A fonte oficial (developers.rdstation.com) documenta cerca de 45 rotas de dados do Marketing.
 
-Quando isso sair: o pacote `n8n-nodes-rd-station-marketing` 1.0.0 traz um node de ação que cobre todas as rotas não descontinuadas do Marketing, com listas pesquisáveis tiradas da própria conta, e um node gatilho que registra e remove o webhook da RD sozinho ao ativar e desativar o workflow.
+Quando isso sair: o pacote `@pexuleco/n8n-nodes-rd-station-marketing` 1.0.0 traz um node de ação que cobre todas as rotas não descontinuadas do Marketing, com listas pesquisáveis tiradas da própria conta, e um node gatilho que registra e remove o webhook da RD sozinho ao ativar e desativar o workflow.
 
 ## Shape
 
@@ -68,7 +68,7 @@ New: `WorkflowStaticData` guarda no máximo um `RdWebhook` por node gatilho. One
 
 | One-way door | Literal shape | Alternative rejected |
 | --- | --- | --- |
-| nomes persistidos nos workflows | pacote `n8n-nodes-rd-station-marketing`; nodes `rdStationMarketing` e `rdStationMarketingTrigger`; credenciais `rdStationMarketingOAuth2Api` e `rdStationMarketingApi`; `version: 1`; parâmetros `resource`, `operation`, `authentication`, `returnAll`, `limit` | prefixo `rdMarketing`: não bate com o nome do pacote e do repositório |
+| nomes persistidos nos workflows | pacote `@pexuleco/n8n-nodes-rd-station-marketing`; nodes `rdStationMarketing` e `rdStationMarketingTrigger`; credenciais `rdStationMarketingOAuth2Api` e `rdStationMarketingApi`; `version: 1`; parâmetros `resource`, `operation`, `authentication`, `returnAll`, `limit` | prefixo `rdMarketing`: não bate com o nome do pacote e do repositório |
 | forma dos IDs | todo ID que tem rota de listagem é `resourceLocator` com modos `list` (padrão, `searchable: true`) e `id`, e o valor lido é o texto do `value` | campo de texto puro: a UX guideline do n8n manda `From list` como padrão, e trocar o tipo depois quebra workflows salvos |
 | saída das listagens | um item do n8n por registro, sem o envelope da RD; nas 4 operações de Analytics, um item por linha do array principal | devolver o envelope cru: obriga o usuário a um node Split Out em toda listagem |
 | static data do trigger | chave `webhookUuid` no static data do node gatilho (`getWorkflowStaticData('node')`) | guardar na URL do webhook: a RD não devolve a URL no `checkExists` de forma confiável, e o `uuid` é o único dado que o `DELETE` aceita |
@@ -87,7 +87,7 @@ O repositório compila, passa no lint oficial, roda os testes e publica no npm c
 
 1. WHEN `npm run build` roda THEN o sistema SHALL sair com código 0 e gerar o node de ação, o gatilho, as duas credenciais e os ícones `.svg` ao lado de cada node em `dist/`
 2. WHEN `npm run lint` roda THEN `n8n-node lint` SHALL sair com código 0 e imprimir 0 erros
-3. The `package.json` SHALL ter `"name": "n8n-nodes-rd-station-marketing"`, `"version": "1.0.0"`, `"license": "MIT"`, a keyword `n8n-community-node-package`, `"build": "n8n-node build"`, `"lint": "n8n-node lint"`, `"n8n.strict": true`, `@n8n/node-cli` `0.55.5` em `devDependencies`, `n8n.nodes` com 2 entradas, `n8n.credentials` com 2 entradas e nenhum campo `dependencies`
+3. The `package.json` SHALL ter `"name": "@pexuleco/n8n-nodes-rd-station-marketing"`, `"version": "1.0.0"`, `"license": "MIT"`, a keyword `n8n-community-node-package`, `"build": "n8n-node build"`, `"lint": "n8n-node lint"`, `"n8n.strict": true`, `@n8n/node-cli` `0.55.5` em `devDependencies`, `n8n.nodes` com 2 entradas, `n8n.credentials` com 2 entradas e nenhum campo `dependencies`
 4. WHEN `npm test` roda THEN o sistema SHALL compilar e rodar `node --test test/*.test.cjs` com saída `# fail 0`
 5. WHEN um Pull Request abre THEN o workflow de CI SHALL rodar `npm ci`, `npm run lint`, `npm test` e `npm run build`
 6. WHEN uma tag `v1.0.0` chega ao GitHub THEN o workflow de publicação SHALL conferir que a tag é igual à versão do `package.json`, rodar lint, teste e build, e publicar com provenance, e `npm view n8n-nodes-rd-station-marketing version` SHALL devolver `1.0.0`

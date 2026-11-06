@@ -1,5 +1,5 @@
 /**
- * Testes de estrutura do pacote (checks C1, C3, C5 a C8, C91, C92 e C95).
+ * Testes de estrutura do pacote (checks C1, C3, C5 a C8, C91, C92, C95 e C111).
  *
  * Eles leem o `package.json`, os workflows, o `dist/` gerado pelo build e os descritores dos nodes.
  * Servem de rede de proteção para o que o n8n e o npm esperam do pacote: nomes persistidos nos
@@ -44,7 +44,7 @@ describe('Pacote', () => {
 	});
 
 	it('C3 - o package.json traz os campos do plano e nenhum dependencies', () => {
-		assert.equal(pacote.name, 'n8n-nodes-rd-station-marketing');
+		assert.equal(pacote.name, '@pexuleco/n8n-nodes-rd-station-marketing');
 		assert.equal(pacote.version, '1.0.0');
 		assert.equal(pacote.license, 'MIT');
 		assert.ok(pacote.keywords.includes('n8n-community-node-package'));
@@ -162,5 +162,20 @@ describe('Descritores', () => {
 		assert.equal(webhook.httpMethod, 'POST');
 		assert.equal(webhook.path, 'webhook');
 		assert.equal(webhook.responseMode, 'onReceived');
+	});
+
+	// C111: o npm recusou o nome sem escopo (E400 "Version uniqueness check failed unexpectedly", runs
+	// 42287807746 e 42288009373) porque `n8n-nodes-rdstation-marketing` já existe e, sem pontuação,
+	// os dois nomes ficam iguais. Este teste falha se alguém voltar ao nome sem escopo, tirar o
+	// acesso público (pacote com escopo nasce privado) ou esquecer o nome novo na instrução do README.
+	it('C111 - o pacote tem escopo @pexuleco, acesso público e o README instala pelo nome novo', () => {
+		const nome = '@pexuleco/n8n-nodes-rd-station-marketing';
+		assert.equal(pacote.name, nome);
+		assert.equal(pacote.publishConfig.access, 'public');
+		// A instrução de instalação é o bloco de código logo depois do título "Instalação".
+		const instalacao = ler('README.md').split('## Instalação')[1].split('##')[0];
+		assert.ok(instalacao.includes('\n' + nome + '\n'), 'README sem o nome com escopo na instalação');
+		// O CHANGELOG da 1.0.0 também cita o pacote pelo nome publicado, para quem lê o histórico.
+		assert.ok(ler('CHANGELOG.md').includes('`' + nome + '`'), 'CHANGELOG sem o nome com escopo');
 	});
 });
