@@ -1,6 +1,6 @@
 {
 	"name": "@pexuleco/n8n-nodes-rd-station-marketing",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "n8n community node for RD Station Marketing: contacts, custom fields, funnel, segmentations, automation flows, emails, landing pages, pop-ups, forms, campaigns, analytics, events, product catalog, webhooks and a real webhook trigger.",
 	"keywords": [
 		"n8n-community-node-package",
@@ -9,7 +9,11 @@
 		"rd station marketing",
 		"rdstation",
 		"marketing automation",
+		"email marketing",
 		"leads",
+		"landing page",
+		"webhook",
+		"trigger",
 		"ai-tool"
 	],
 	"license": "MIT",
@@ -24,6 +28,10 @@
 	},
 	"bugs": {
 		"url": "https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-marketing/issues"
+	},
+	"funding": {
+		"type": "individual",
+		"url": "https://buymeacoffee.com/qTny0AzFXS"
 	},
 	"main": "dist/nodes/RdStationMarketing/RdStationMarketing.node.js",
 	"scripts": {
