@@ -17,6 +17,7 @@ import type {
 import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import type { OperationHandler } from './descriptions';
+import { getCustomFieldNames, searchCustomFields } from './methods';
 import { RESOURCES } from './resources';
 
 // Tabela `recurso → operação → função`, montada uma vez a partir do registro de recursos.
@@ -67,6 +68,12 @@ export class RdStationMarketing implements INodeType {
 			// Para cada recurso: o seletor de operação e os campos dele.
 			...RESOURCES.flatMap((resource) => [resource.operationSelector, ...resource.properties]),
 		],
+	};
+
+	// Listas do editor: `listSearch` alimenta os IDs "From list" e `loadOptions` os dropdowns simples.
+	methods = {
+		listSearch: { searchCustomFields },
+		loadOptions: { getCustomFieldNames },
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

@@ -6,5 +6,7 @@
  */
 import type { ResourceModule } from '../descriptions';
 import { contactResource } from './contact';
+import { customFieldResource } from './customField';
+import { funnelResource } from './funnel';
 
-export const RESOURCES: ResourceModule[] = [contactResource];
+export const RESOURCES: ResourceModule[] = [contactResource, customFieldResource, funnelResource];
