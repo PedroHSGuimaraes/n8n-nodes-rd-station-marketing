@@ -91,6 +91,13 @@ describe('Pacote', () => {
 		);
 	});
 
+	it('C8 - o README está em PT-BR com as 5 seções e o CHANGELOG tem a seção 1.0.0', () => {
+		const readme = ler('README.md');
+		for (const secao of ['Instalação', 'Credenciais', 'Recursos e Operações', 'Exemplos', 'Desenvolvimento']) {
+			assert.match(readme, new RegExp(`^## ${secao}`, 'm'), `README sem a seção ${secao}`);
+		}
+		assert.match(ler('CHANGELOG.md'), /^## 1\.0\.0/m);
+	});
 });
 
 describe('Descritores', () => {
