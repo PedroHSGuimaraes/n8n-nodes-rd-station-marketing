@@ -59,7 +59,7 @@ export function makeListSearch(config: ListSearchConfig): ListSearchMethod {
 			results = results.filter((row) => String(row.name).toLowerCase().includes(wanted));
 		}
 		// As linhas fixas só aparecem na primeira página e sem busca.
-		if (!filter && page === 1 && config.fixedFirst) results = [...config.fixedFirst.flat(), ...results];
+		if (!filter && page === 1 && config.fixedFirst) results = [...config.fixedFirst, ...results];
 		// Há mais páginas quando esta veio cheia; o editor devolve o token ao rolar a lista.
 		const hasMore = Boolean(config.pageSize) && items.length >= (config.pageSize ?? 0);
 		return { results, paginationToken: hasMore ? String(page + 1) : undefined };
@@ -98,4 +98,66 @@ export async function getCustomFieldNames(
 	return extractItems(response, 'fields')
 		.filter((field) => field.custom_field === true)
 		.map((field) => ({ name: fieldLabel(field), value: String(field.api_identifier) }));
+}
+
+// Segmentações padrão da RD: elas não aparecem na busca da rota, então entram fixas no começo da lista
+// (nomes e ids da página "mais informações" da documentação).
+const STANDARD_SEGMENTATIONS: INodeListSearchItems[] = [
+	['1', 'Todos os contatos da base de Leads'],
+	['2', 'Leads (estágio no funil)'],
+	['3', 'Leads Qualificados (estágio no funil)'],
+	['4', 'Clientes (estágio no funil)'],
+	['5', 'Oportunidades'],
+	// Tuplas `[id, nome]` viram linhas do dropdown; o nome é texto da RD (em português), não rótulo de UI.
+].map(([value, name]) => ({ name, value }));
+
+// Dropdown de segmentações (valor = id numérico, como texto).
+export const searchSegmentations = makeListSearch({
+	path: '/platform/segmentations',
+	itemsKey: 'segmentations',
+	pageSize: 125,
+	searchParam: 'search',
+	toResult: (item) => ({ name: String(item.name), value: String(item.id) }),
+	fixedFirst: STANDARD_SEGMENTATIONS,
+});
+
+// Dropdown de fluxos de automação (valor = id em formato uuid).
+export const searchWorkflows = makeListSearch({
+	path: '/platform/workflows',
+	pageSize: 50,
+	searchParam: 'search',
+	toResult: (item) => ({ name: String(item.name), value: String(item.id) }),
+});
+
+// Dropdown de e-mails; na RD a busca por nome se chama `query`.
+export const searchEmails = makeListSearch({
+	path: '/platform/emails',
+	itemsKey: 'items',
+	pageSize: 50,
+	searchParam: 'query',
+	toResult: (item) => ({ name: String(item.name), value: String(item.id) }),
+});
+
+// Dropdown de campanhas.
+export const searchCampaigns = makeListSearch({
+	path: '/platform/campaigns',
+	itemsKey: 'campaigns',
+	pageSize: 50,
+	searchParam: 'search',
+	toResult: (item) => ({ name: String(item.name), value: String(item.id) }),
+});
+
+// Ações do fluxo escolhido na tela: a sigla do tipo (SDEMA, WTDEL...) é o nome, porque a RD não dá
+// rótulo legível. Lê o fluxo que a pessoa já escolheu, então devolve lista vazia enquanto não houver um.
+export async function getWorkflowActions(
+	this: ILoadOptionsFunctions,
+): Promise<INodePropertyOptions[]> {
+	const workflowId = this.getCurrentNodeParameter('workflowId', { extractValue: true }) as string;
+	if (!workflowId) return [];
+	const response = await rdMarketingApiRequest.call(this, 'GET', `/platform/workflows/${workflowId}`);
+	const info = (response.workflow_info as IDataObject | undefined) ?? response;
+	return extractItems(info, 'actions').map((action) => ({
+		name: String(action.type),
+		value: String(action.id),
+	}));
 }

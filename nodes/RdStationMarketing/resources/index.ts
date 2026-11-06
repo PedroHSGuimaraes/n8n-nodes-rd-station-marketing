@@ -5,8 +5,25 @@
  * criar o módulo dele e incluí-lo aqui. A ordem da lista é a ordem do dropdown "Resource".
  */
 import type { ResourceModule } from '../descriptions';
+import { analyticsResource } from './analytics';
+import { emailResource, formResource, landingPageResource, popupResource } from './assets';
+import { automationFlowResource } from './automationFlow';
+import { campaignResource } from './campaign';
 import { contactResource } from './contact';
 import { customFieldResource } from './customField';
 import { funnelResource } from './funnel';
+import { segmentationResource } from './segmentation';
 
-export const RESOURCES: ResourceModule[] = [contactResource, customFieldResource, funnelResource];
+export const RESOURCES: ResourceModule[] = [
+	contactResource,
+	customFieldResource,
+	funnelResource,
+	segmentationResource,
+	automationFlowResource,
+	emailResource,
+	landingPageResource,
+	popupResource,
+	formResource,
+	campaignResource,
+	analyticsResource,
+];

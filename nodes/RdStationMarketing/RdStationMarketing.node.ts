@@ -17,7 +17,15 @@ import type {
 import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import type { OperationHandler } from './descriptions';
-import { getCustomFieldNames, searchCustomFields } from './methods';
+import {
+	getCustomFieldNames,
+	getWorkflowActions,
+	searchCampaigns,
+	searchCustomFields,
+	searchEmails,
+	searchSegmentations,
+	searchWorkflows,
+} from './methods';
 import { RESOURCES } from './resources';
 
 // Tabela `recurso → operação → função`, montada uma vez a partir do registro de recursos.
@@ -72,8 +80,14 @@ export class RdStationMarketing implements INodeType {
 
 	// Listas do editor: `listSearch` alimenta os IDs "From list" e `loadOptions` os dropdowns simples.
 	methods = {
-		listSearch: { searchCustomFields },
-		loadOptions: { getCustomFieldNames },
+		listSearch: {
+			searchCampaigns,
+			searchCustomFields,
+			searchEmails,
+			searchSegmentations,
+			searchWorkflows,
+		},
+		loadOptions: { getCustomFieldNames, getWorkflowActions },
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

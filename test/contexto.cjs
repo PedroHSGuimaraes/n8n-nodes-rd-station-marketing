@@ -41,6 +41,8 @@ function contexto(parametros, responder, extras = {}) {
 			const valores = doItem(i);
 			return Object.prototype.hasOwnProperty.call(valores, nome) ? valores[nome] : padrao;
 		},
+		// Usado pelo `loadOptions`, que lê o que a pessoa já preencheu na tela (ex.: o fluxo escolhido).
+		getCurrentNodeParameter: (nome) => doItem(0)[nome],
 		getWorkflowStaticData: () => estatico,
 		getNodeWebhookUrl: () => extras.urlWebhook || 'https://n8n.example.com/webhook/abc',
 		getBodyData: () => extras.corpoWebhook || {},

@@ -173,6 +173,8 @@ export async function rdMarketingApiRequest(
 		headers: { 'Content-Type': 'application/json' },
 		json: true,
 		timeout: RD_TIMEOUT_MS,
+		// Listas na query saem repetidas (`assets_type[]=A&assets_type[]=B`), o formato que a RD documenta.
+		arrayFormat: 'repeat',
 	};
 	if (qs && Object.keys(qs).length > 0) request.qs = qs;
 	if (Array.isArray(body) || (body && Object.keys(body).length > 0)) {
