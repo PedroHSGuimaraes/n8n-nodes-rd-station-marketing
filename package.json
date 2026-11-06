@@ -1,0 +1,71 @@
+{
+	"name": "n8n-nodes-rd-station-marketing",
+	"version": "1.0.0",
+	"description": "n8n community node for RD Station Marketing: contacts, custom fields, funnel, segmentations, automation flows, emails, landing pages, pop-ups, forms, campaigns, analytics, events, product catalog, webhooks and a real webhook trigger.",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"rd station",
+		"rd station marketing",
+		"rdstation",
+		"marketing automation",
+		"leads",
+		"ai-tool"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-marketing#readme",
+	"author": {
+		"name": "Pedro Henrique Santos Guimaraes",
+		"email": "pedro.guimaraes02@hotmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-marketing.git"
+	},
+	"bugs": {
+		"url": "https://github.com/PedroHSGuimaraes/n8n-nodes-rd-station-marketing/issues"
+	},
+	"main": "dist/nodes/RdStationMarketing/RdStationMarketing.node.js",
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"format": "prettier nodes credentials test package.json README.md CHANGELOG.md --write",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"test": "npm run build --silent && node --test --test-reporter=spec test/*.test.cjs",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/RdStationMarketingOAuth2Api.credentials.js",
+			"dist/credentials/RdStationMarketingApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/RdStationMarketing/RdStationMarketing.node.js",
+			"dist/nodes/RdStationMarketingTrigger/RdStationMarketingTrigger.node.js"
+		]
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.55.5",
+		"@types/node": "^24.0.0",
+		"eslint": "9.32.0",
+		"n8n-workflow": "^2.16.0",
+		"prettier": "3.6.2",
+		"release-it": "^21.1.0",
+		"typescript": "5.9.2"
+	}
+}
