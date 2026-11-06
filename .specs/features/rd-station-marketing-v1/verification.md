@@ -109,6 +109,7 @@
 | C99 | `retentativa.test.cjs` `C99 - 429 na página 2 e depois 200: o resultado tem as duas páginas` | yes - assere 165 itens e as páginas `[1, 2, 2]` com o mesmo `page_size` |
 | C100 | `retentativa.test.cjs` `C100 - a espera usa o Retry-After, depois o remaining_time e por fim um valor fixo curto` | no - cada caso traz uma só fonte; nenhum traz Retry-After e `remaining_time` juntos, então trocar a ordem (`remaining_time` primeiro) passa. Sonda: com os dois, a espera é a do cabeçalho (2000), mas nada a prende. O teto de 60 s só é testado no cabeçalho |
 | C101 | `retentativa.test.cjs` `C101 - depois de 3 tentativas com 429 lança o erro claro de limite, e 401 não é repetido` e `C101 - exatamente 3 requisições são feitas antes de desistir` | yes - mensagem e descrição exatas, 3 requisições, 2 esperas e 1 requisição no 401 |
+| C102 | `gatilho-existente.test.cjs` `C102 - Include Relations diferente recria; relações ausentes na lista da RD não forçam recriação` | yes - escrito pelo autor a partir da sonda do Verifier (relações trocadas devolviam true); não passou por um terceiro Verifier |
 
 ## Findings
 
