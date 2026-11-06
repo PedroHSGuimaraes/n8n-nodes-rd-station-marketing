@@ -11,8 +11,11 @@ import { automationFlowResource } from './automationFlow';
 import { campaignResource } from './campaign';
 import { contactResource } from './contact';
 import { customFieldResource } from './customField';
+import { eventResource } from './event';
 import { funnelResource } from './funnel';
+import { productCatalogResource } from './productCatalog';
 import { segmentationResource } from './segmentation';
+import { webhookResource } from './webhook';
 
 export const RESOURCES: ResourceModule[] = [
 	contactResource,
@@ -26,4 +29,7 @@ export const RESOURCES: ResourceModule[] = [
 	formResource,
 	campaignResource,
 	analyticsResource,
+	eventResource,
+	productCatalogResource,
+	webhookResource,
 ];

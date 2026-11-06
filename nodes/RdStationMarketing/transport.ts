@@ -35,6 +35,8 @@ export const RD_TIMEOUT_MS = 30000;
 export interface RdErrorHint {
 	message?: string;
 	description?: string;
+	// Só aplica o texto quando o corpo de erro da RD contém este trecho (ex.: `INVALID_URL`).
+	whenBodyIncludes?: string;
 }
 
 export interface RdRequestOptions {
@@ -123,7 +125,12 @@ export function translateRdError(
 	const status = statusOf(error);
 	const body = bodyOf(error);
 	const suffix = ` [item ${itemIndex}]`;
-	const hint = status === undefined ? undefined : hints[status];
+	// O texto específico da operação só vale se a condição do corpo (quando existe) for verdadeira.
+	const candidate = status === undefined ? undefined : hints[status];
+	const hint =
+		candidate?.whenBodyIncludes && !JSON.stringify(body).includes(candidate.whenBodyIncludes)
+			? undefined
+			: candidate;
 
 	let message: string | undefined;
 	let description: string | undefined;

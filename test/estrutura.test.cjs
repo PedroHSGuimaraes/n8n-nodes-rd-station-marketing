@@ -99,6 +99,43 @@ describe('Descritores', () => {
 		RdStationMarketingTrigger,
 	} = require('../dist/nodes/RdStationMarketingTrigger/RdStationMarketingTrigger.node');
 
+	it('C91 - os nodes mantêm os nomes e os parâmetros que ficam salvos nos workflows', () => {
+		const acao = new RdStationMarketing().description;
+		const gatilho = new RdStationMarketingTrigger().description;
+		assert.equal(acao.name, 'rdStationMarketing');
+		assert.equal(gatilho.name, 'rdStationMarketingTrigger');
+		assert.equal(acao.version, 1);
+		assert.equal(gatilho.version, 1);
+		const nomes = acao.properties.map((p) => p.name);
+		for (const nome of ['resource', 'operation', 'authentication', 'returnAll', 'limit']) {
+			assert.ok(nomes.includes(nome), `falta o parâmetro ${nome}`);
+		}
+	});
+
+	it('C92 - todo ID com rota de listagem é resourceLocator com list (padrão, searchable) e id', () => {
+		const ids = [
+			'customFieldId',
+			'segmentationId',
+			'workflowId',
+			'emailId',
+			'campaignId',
+			'catalogId',
+			'webhookId',
+		];
+		const propriedades = new RdStationMarketing().description.properties;
+		for (const id of ids) {
+			const achadas = propriedades.filter((p) => p.name === id);
+			assert.ok(achadas.length > 0, `falta o parâmetro ${id}`);
+			for (const p of achadas) {
+				assert.equal(p.type, 'resourceLocator', `${id} não é resourceLocator`);
+				assert.equal(p.default.mode, 'list', `${id} não abre em From list`);
+				const lista = p.modes.find((m) => m.name === 'list');
+				assert.equal(lista.typeOptions.searchable, true, `${id} sem busca`);
+				assert.ok(p.modes.some((m) => m.name === 'id'), `${id} sem modo id`);
+			}
+		}
+	});
+
 	it('C95 - o gatilho declara o webhook POST no caminho webhook e responde na hora', () => {
 		const [webhook] = new RdStationMarketingTrigger().description.webhooks;
 		assert.equal(webhook.httpMethod, 'POST');

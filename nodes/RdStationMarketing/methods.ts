@@ -161,3 +161,16 @@ export async function getWorkflowActions(
 		value: String(action.id),
 	}));
 }
+
+// Dropdown de catálogos de produtos; a RD devolve um array na raiz e sem paginação.
+export const searchCatalogs = makeListSearch({
+	path: '/platform/catalog_feeds',
+	toResult: (item) => ({ name: String(item.name), value: String(item.id) }),
+});
+
+// Dropdown de webhooks; mostra evento e endereço porque a RD não dá nome ao webhook.
+export const searchWebhooks = makeListSearch({
+	path: '/integrations/webhooks',
+	itemsKey: 'webhooks',
+	toResult: (item) => ({ name: `${String(item.event_type)} - ${String(item.url)}`, value: String(item.uuid) }),
+});

@@ -21,9 +21,11 @@ import {
 	getCustomFieldNames,
 	getWorkflowActions,
 	searchCampaigns,
+	searchCatalogs,
 	searchCustomFields,
 	searchEmails,
 	searchSegmentations,
+	searchWebhooks,
 	searchWorkflows,
 } from './methods';
 import { RESOURCES } from './resources';
@@ -82,9 +84,11 @@ export class RdStationMarketing implements INodeType {
 	methods = {
 		listSearch: {
 			searchCampaigns,
+			searchCatalogs,
 			searchCustomFields,
 			searchEmails,
 			searchSegmentations,
+			searchWebhooks,
 			searchWorkflows,
 		},
 		loadOptions: { getCustomFieldNames, getWorkflowActions },
