@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-109 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
+110 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -364,6 +364,9 @@ Proof: run unit | ✔ C108 -
 **C109** - Sem webhook da URL do modo na RD, o `checkExists` esquece o uuid guardado para essa URL e mantém o de outras URLs (terceiro Verifier)
 Proof: run unit | ✔ C109 -
 
+**C110** - O `publish.yml` publica pelo `npm@12.2.2 stage publish --provenance` com `RELEASE_MODE` e `NODE_AUTH_TOKEN` no env (token granular "stage only": a versão fica em espera até o dono aprovar na aba Staged Packages do npmjs.com), sem passo `npm publish` nem `npm run release`, com `workflow_dispatch` e na mesma versão de Node do `ci.yml`
+Proof: run unit | ✔ C110 -
+
 ## Coverage
 
 | Set (size) | Member -> proof | Unproven |
@@ -405,7 +408,7 @@ Proof: run unit | ✔ C109 -
 
 ## Handoff
 
-- **Settled mid-build:** 06/11/2026, lead (a pedido, depois do segundo Verifier): o `checkExists` do gatilho procura o webhook pela URL deste modo e nunca apaga nem altera webhook de outra URL; o `delete` apaga só o uuid guardado para a URL do modo (AD-013). 06/11/2026, dono: a tag `v1.0.0` só sai depois que ele testar com conta real (renovação do token OAuth2 e campos `cf_*`). O pacote fica com version 1.0.0, CHANGELOG, CI e publish prontos, sem tag, e o README explica o teste local com `npm run dev`. O `npm view` do C6 espera essa tag.
+- **Settled mid-build:** 06/11/2026, dono: o token do npm continua "stage only", então o `publish.yml` publica por `npm stage publish` e o dono aprova cada versão na aba Staged Packages (AD-014, C110). 06/11/2026, lead (a pedido, depois do segundo Verifier): o `checkExists` do gatilho procura o webhook pela URL deste modo e nunca apaga nem altera webhook de outra URL; o `delete` apaga só o uuid guardado para a URL do modo (AD-013). 06/11/2026, dono: a tag `v1.0.0` só sai depois que ele testar com conta real (renovação do token OAuth2 e campos `cf_*`). O pacote fica com version 1.0.0, CHANGELOG, CI e publish prontos, sem tag, e o README explica o teste local com `npm run dev`. O `npm view` do C6 espera essa tag.
 - **Dispatched:** Verifier (sonnet, sub-agente novo) em 06/11/2026 sobre o `HEAD` que contém este commit; returned: sim, FAIL com 8 achados; fechados em `f135d01`; segundo Verifier (sonnet, sub-agente novo) só para C96 a C101 dos achados da the-judge, no `HEAD` que contém este commit; returned: não; terceiro Verifier (sonnet, sub-agente novo) para C102 a C105 em `a9cb7c4`; returned: sim, 5 achados fechados em `f059248`; o mesmo Verifier retomado para C106 a C108 em `8c773b9`; returned: sim, 2 achados fechados em `95e0512`
 - **Boundary:** C1-C95 fechados e `check_proofs.py` com 98 pass e 0 fail em `6de2a8d` e, depois da correção do Verifier, 98 pass em `f135d01`
 - **Abandoned:** none

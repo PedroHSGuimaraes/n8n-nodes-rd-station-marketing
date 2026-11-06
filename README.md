@@ -130,7 +130,11 @@ O `npm run dev` roda `n8n-node dev`: ele sobe um n8n local com este pacote carre
 4. Deixe o workflow rodar por mais de 24 horas, ou apague o token no n8n, para confirmar a renovação automática do token.
 5. Em **Contact → Create**, preencha um **Custom Field** e confira se a RD aceita os campos `cf_*`.
 
-A tag `v1.0.0` só deve sair depois desse teste com conta real (decisão AD-011 em `.specs/STATE.md`). O workflow `publish.yml` publica no npm quando uma tag `v*.*.*` chega ao GitHub, com provenance.
+A tag `v1.0.0` só deve sair depois desse teste com conta real (decisão AD-011 em `.specs/STATE.md`). O workflow `publish.yml` envia a versão ao npm quando uma tag `v*.*.*` chega ao GitHub (ou quando alguém o roda à mão), com provenance.
+
+## Publicação
+
+O `publish.yml` usa `npm stage publish`. A versão **fica em espera**: ela só vai ao ar depois que o dono a aprova, com 2FA, na aba **Staged Packages** do npmjs.com. Sem a aprovação, nada muda no registro.
 
 ## Compatibilidade
 
