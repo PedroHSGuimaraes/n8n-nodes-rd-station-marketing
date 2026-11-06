@@ -11,7 +11,9 @@ const { describe, it } = require('node:test');
 const { executarJson } = require('./contexto.cjs');
 
 const propriedade = (nome, recurso) => {
-	const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+	const {
+		RdStationMarketing,
+	} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 	return new RdStationMarketing().description.properties.find(
 		(p) => p.name === nome && p.displayOptions?.show?.resource?.includes(recurso),
 	);
@@ -79,7 +81,11 @@ describe('Product Catalog', () => {
 
 	it('C77 - o dropdown format tem exatamente xml, json e google_shopping', () => {
 		const formato = propriedade('format', 'productCatalog');
-		assert.deepEqual(formato.options.map((o) => o.value).sort(), ['google_shopping', 'json', 'xml']);
+		assert.deepEqual(formato.options.map((o) => o.value).sort(), [
+			'google_shopping',
+			'json',
+			'xml',
+		]);
 	});
 });
 
@@ -137,7 +143,13 @@ describe('Webhook (node de ação)', () => {
 		assert.equal(lista.json.length, 2);
 
 		const update = await executarJson(
-			{ ...base, operation: 'update', webhookId: 'w-1', eventType: 'WEBHOOK.CONVERTED', eventIdentifiers: '' },
+			{
+				...base,
+				operation: 'update',
+				webhookId: 'w-1',
+				eventType: 'WEBHOOK.CONVERTED',
+				eventIdentifiers: '',
+			},
 			() => ({ uuid: 'w-1' }),
 		);
 		assert.equal(update.requisicoes[0].method, 'PUT');

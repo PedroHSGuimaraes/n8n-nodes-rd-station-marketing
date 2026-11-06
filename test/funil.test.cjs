@@ -46,16 +46,19 @@ describe('Funnel', () => {
 	});
 
 	it('C38 - o dropdown lifecycleStage tem exatamente Lead, Qualified Lead e Client', () => {
-		const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+		const {
+			RdStationMarketing,
+		} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 		const colecao = new RdStationMarketing().description.properties.find(
 			(p) => p.name === 'updateFields' && p.displayOptions?.show?.resource?.includes('funnel'),
 		);
 		const estagio = colecao.options.find((o) => o.name === 'lifecycleStage');
 		// O check fala do conjunto exato de valores; a ordem na tela segue o lint do n8n (alfabética).
-		assert.deepEqual(
-			estagio.options.map((o) => o.value).sort(),
-			['Client', 'Lead', 'Qualified Lead'],
-		);
+		assert.deepEqual(estagio.options.map((o) => o.value).sort(), [
+			'Client',
+			'Lead',
+			'Qualified Lead',
+		]);
 	});
 
 	it('C39 - removeContactOwner envia contact_owner_email null; desligado e vazio omite o campo', async () => {

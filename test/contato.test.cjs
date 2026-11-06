@@ -56,7 +56,13 @@ describe('Contact', () => {
 		assert.deepEqual(porEmail.requisicoes[0].body, { name: 'Novo' });
 
 		const porUuid = await executarJson(
-			{ resource: 'contact', operation: 'update', identifierType: 'uuid', identifier: 'u-9', updateFields: campos },
+			{
+				resource: 'contact',
+				operation: 'update',
+				identifierType: 'uuid',
+				identifier: 'u-9',
+				updateFields: campos,
+			},
 			() => ({}),
 		);
 		assert.equal(porUuid.requisicoes[0].url, '/platform/contacts/uuid:u-9');
@@ -70,7 +76,9 @@ describe('Contact', () => {
 		);
 		assert.deepEqual(requisicoes[0].body.tags, ['a', 'b']);
 
-		const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+		const {
+			RdStationMarketing,
+		} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 		const propriedades = new RdStationMarketing().description.properties;
 		const atualizar = propriedades.find(
 			(p) => p.name === 'updateFields' && p.displayOptions?.show?.resource?.includes('contact'),
@@ -100,7 +108,11 @@ describe('Contact', () => {
 	});
 
 	it('C25 - Get Events com Return All repete page 1, 2, 3 até vir uma página vazia', async () => {
-		const paginas = [[{ event_type: 'CONVERSION', n: 1 }], [{ event_type: 'CONVERSION', n: 2 }], []];
+		const paginas = [
+			[{ event_type: 'CONVERSION', n: 1 }],
+			[{ event_type: 'CONVERSION', n: 2 }],
+			[],
+		];
 		const { json, requisicoes } = await executarJson(
 			{
 				resource: 'contact',
@@ -124,7 +136,13 @@ describe('Contact', () => {
 	it('C26 - Custom Fields de Create e Update entram no corpo como cf_plano: "Pro"', async () => {
 		const campos = { values: [{ field: 'cf_plano', value: 'Pro' }] };
 		const criar = await executarJson(
-			{ resource: 'contact', operation: 'create', email: 'a@b.com', name: 'A', customFields: campos },
+			{
+				resource: 'contact',
+				operation: 'create',
+				email: 'a@b.com',
+				name: 'A',
+				customFields: campos,
+			},
 			() => ({}),
 		);
 		assert.equal(criar.requisicoes[0].body.cf_plano, 'Pro');
@@ -197,12 +215,17 @@ describe('Transporte comum', () => {
 	it('C14 - 401 vira NodeApiError com a mensagem e a descrição do plano', async () => {
 		await assert.rejects(
 			executarJson({ ...base, operation: 'get' }, () => {
-				throw erroHttp(401, { errors: { error_type: 'UNAUTHORIZED', error_message: 'Invalid token.' } });
+				throw erroHttp(401, {
+					errors: { error_type: 'UNAUTHORIZED', error_message: 'Invalid token.' },
+				});
 			}),
 			(erro) => {
 				assert.equal(erro.name, 'NodeApiError');
 				assert.equal(erro.message, 'Your RD Station access token is invalid or expired [item 0]');
-				assert.equal(erro.description, 'Reconnect the RD Station credential and run the node again');
+				assert.equal(
+					erro.description,
+					'Reconnect the RD Station credential and run the node again',
+				);
 				return true;
 			},
 		);
@@ -237,7 +260,10 @@ describe('Transporte comum', () => {
 				});
 			}),
 			(erro) => {
-				assert.equal(erro.message, "RD Station rejected the 'email' field: CANNOT_BE_NULL [item 0]");
+				assert.equal(
+					erro.message,
+					"RD Station rejected the 'email' field: CANNOT_BE_NULL [item 0]",
+				);
 				return true;
 			},
 		);
@@ -250,7 +276,8 @@ describe('Transporte comum', () => {
 				{ ...base, operation: 'get', identifier: 'bom@bar.com' },
 			],
 			(opcoes) => {
-				if (opcoes.url.includes('ruim')) throw erroHttp(500, { errors: { error_message: 'falha' } });
+				if (opcoes.url.includes('ruim'))
+					throw erroHttp(500, { errors: { error_message: 'falha' } });
 				return { uuid: 'ok' };
 			},
 			{ continuarEmErro: true, itens: [{ json: {} }, { json: {} }] },

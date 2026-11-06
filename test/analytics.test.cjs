@@ -24,10 +24,18 @@ describe('Analytics', () => {
 
 	it('C57 - Workflow Emails, Funnel e Conversions chamam as 3 rotas e devolvem 1 item por linha', async () => {
 		const casos = [
-			['getWorkflowEmails', '/platform/analytics/workflow_emails', { workflow_email_statistics: [{ a: 1 }, { a: 2 }] }],
+			[
+				'getWorkflowEmails',
+				'/platform/analytics/workflow_emails',
+				{ workflow_email_statistics: [{ a: 1 }, { a: 2 }] },
+			],
 			['getFunnel', '/platform/analytics/funnel', { funnel: [{ a: 1 }, { a: 2 }] }],
 			// A lista `assets_type` vem antes de `conversions`: só a chave certa acerta.
-			['getConversions', '/platform/analytics/conversions', { assets_type: ['Popup'], conversions: [{ a: 1 }, { a: 2 }] }],
+			[
+				'getConversions',
+				'/platform/analytics/conversions',
+				{ assets_type: ['Popup'], conversions: [{ a: 1 }, { a: 2 }] },
+			],
 		];
 		for (const [operation, rota, resposta] of casos) {
 			const { json, requisicoes } = await executarJson(
@@ -54,7 +62,12 @@ describe('Analytics', () => {
 
 	it('C59 - Get Conversions envia assets_type[] repetido para LandingPage e Popup', async () => {
 		const { requisicoes } = await executarJson(
-			{ resource: 'analytics', operation: 'getConversions', ...datas, assetsType: ['LandingPage', 'Popup'] },
+			{
+				resource: 'analytics',
+				operation: 'getConversions',
+				...datas,
+				assetsType: ['LandingPage', 'Popup'],
+			},
 			() => ({ conversions: [] }),
 		);
 		assert.deepEqual(requisicoes[0].qs['assets_type[]'], ['LandingPage', 'Popup']);

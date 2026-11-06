@@ -11,16 +11,21 @@ const { describe, it } = require('node:test');
 
 const { contexto, erroHttp } = require('./contexto.cjs');
 
-const { RdStationMarketingTrigger } = require('../dist/nodes/RdStationMarketingTrigger/RdStationMarketingTrigger.node');
+const {
+	RdStationMarketingTrigger,
+} = require('../dist/nodes/RdStationMarketingTrigger/RdStationMarketingTrigger.node');
 
 const metodos = () => new RdStationMarketingTrigger().webhookMethods.default;
 const URL = 'https://n8n.example.com/webhook/abc';
 
 describe('Gatilho: ativar o workflow', () => {
 	it('C82 - Converted chama POST /integrations/webhooks e grava o webhookUuid no static data', async () => {
-		const ctx = contexto({ event: 'converted', conversionIdentifiers: '', includeRelations: [] }, () => ({
-			uuid: 'w-1',
-		}));
+		const ctx = contexto(
+			{ event: 'converted', conversionIdentifiers: '', includeRelations: [] },
+			() => ({
+				uuid: 'w-1',
+			}),
+		);
 		const criado = await metodos().create.call(ctx);
 		assert.equal(criado, true);
 		assert.equal(ctx.requisicoes[0].method, 'POST');
@@ -55,7 +60,11 @@ describe('Gatilho: ativar o workflow', () => {
 
 	it('C85 - includeRelations vira ["COMPANY", "CONTACT_FUNNEL"]', async () => {
 		const ctx = contexto(
-			{ event: 'converted', conversionIdentifiers: '', includeRelations: ['COMPANY', 'CONTACT_FUNNEL'] },
+			{
+				event: 'converted',
+				conversionIdentifiers: '',
+				includeRelations: ['COMPANY', 'CONTACT_FUNNEL'],
+			},
 			() => ({ uuid: 'w-4' }),
 		);
 		await metodos().create.call(ctx);
@@ -119,9 +128,14 @@ describe('Gatilho: desativar o workflow', () => {
 	});
 
 	it('C88 - INVALID_URL na criação lança NodeApiError com a descrição sobre HTTPS público', async () => {
-		const ctx = contexto({ event: 'converted', conversionIdentifiers: '', includeRelations: [] }, () => {
-			throw erroHttp(400, { errors: { error_type: 'INVALID_URL', error_message: 'invalid url' } });
-		});
+		const ctx = contexto(
+			{ event: 'converted', conversionIdentifiers: '', includeRelations: [] },
+			() => {
+				throw erroHttp(400, {
+					errors: { error_type: 'INVALID_URL', error_message: 'invalid url' },
+				});
+			},
+		);
 		await assert.rejects(metodos().create.call(ctx), (erro) => {
 			assert.equal(erro.name, 'NodeApiError');
 			assert.equal(

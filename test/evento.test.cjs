@@ -38,7 +38,9 @@ describe('Seletor de autenticação', () => {
 	});
 
 	it('C13 - o seletor authentication só aparece em Send Conversion', () => {
-		const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+		const {
+			RdStationMarketing,
+		} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 		const seletor = new RdStationMarketing().description.properties.find(
 			(p) => p.name === 'authentication',
 		);
@@ -82,7 +84,10 @@ describe('Event', () => {
 			() => ({ event_uuid: 'e-1' }),
 		);
 		assert.equal(requisicoes[0].body.event_type, 'OPPORTUNITY');
-		assert.deepEqual(requisicoes[0].body.payload, { email: 'ana@example.com', funnel_name: 'default' });
+		assert.deepEqual(requisicoes[0].body.payload, {
+			email: 'ana@example.com',
+			funnel_name: 'default',
+		});
 	});
 
 	it('C65 - Mark Sale envia SALE com value 1500 e omite o value vazio', async () => {
@@ -96,17 +101,27 @@ describe('Event', () => {
 
 	it('C66 - Mark Lost Opportunity envia OPPORTUNITY_LOST com o motivo', async () => {
 		const { requisicoes } = await executarJson(
-			{ resource: 'event', operation: 'markLostOpportunity', email: 'ana@example.com', reason: 'Sem orçamento' },
+			{
+				resource: 'event',
+				operation: 'markLostOpportunity',
+				email: 'ana@example.com',
+				reason: 'Sem orçamento',
+			},
 			() => ({ event_uuid: 'e-1' }),
 		);
 		assert.equal(requisicoes[0].body.event_type, 'OPPORTUNITY_LOST');
 		assert.equal(requisicoes[0].body.payload.reason, 'Sem orçamento');
 	});
 
-	it("C67 - motivo vazio lança \"The 'Reason' parameter is empty [item 0]\" sem chamar a RD", async () => {
+	it('C67 - motivo vazio lança "The \'Reason\' parameter is empty [item 0]" sem chamar a RD', async () => {
 		await assert.rejects(
 			executarJson(
-				{ resource: 'event', operation: 'markLostOpportunity', email: 'ana@example.com', reason: '' },
+				{
+					resource: 'event',
+					operation: 'markLostOpportunity',
+					email: 'ana@example.com',
+					reason: '',
+				},
 				semChamada,
 			),
 			(erro) => {
@@ -131,10 +146,16 @@ describe('Event', () => {
 			() => ({ event_uuid: 'e-2' }),
 		);
 		assert.equal(terminado.requisicoes[0].body.event_type, 'CHAT_FINISHED');
-		assert.equal(terminado.requisicoes[0].body.payload.cf_chat_transcript_message, 'Olá! Até logo.');
+		assert.equal(
+			terminado.requisicoes[0].body.payload.cf_chat_transcript_message,
+			'Olá! Até logo.',
+		);
 
 		await assert.rejects(
-			executarJson({ ...base, chatEvent: 'Finished', chatStatus: 'online', chatTranscript: '' }, semChamada),
+			executarJson(
+				{ ...base, chatEvent: 'Finished', chatStatus: 'online', chatTranscript: '' },
+				semChamada,
+			),
 			/The 'Transcript Message' parameter is empty \[item 0\]/,
 		);
 	});
@@ -178,7 +199,8 @@ describe('Event', () => {
 				resource: 'event',
 				operation: 'sendCustomEvent',
 				eventType: 'ECOMMERCE_ORDER_PLACED',
-				payload: '{"email":"ana@example.com","identifier":"p-1","currency":"BRL","price":10,"total_items":1}',
+				payload:
+					'{"email":"ana@example.com","identifier":"p-1","currency":"BRL","price":10,"total_items":1}',
 			},
 			() => ({ event_uuid: 'e-1' }),
 		);
@@ -186,14 +208,21 @@ describe('Event', () => {
 		assert.equal(requisicoes[0].body.event_family, 'CDP');
 		assert.equal(requisicoes[0].body.payload.identifier, 'p-1');
 
-		const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+		const {
+			RdStationMarketing,
+		} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 		const dropdown = new RdStationMarketing().description.properties.find(
 			(p) => p.name === 'eventType' && p.displayOptions?.show?.resource?.includes('event'),
 		);
 		const valores = dropdown.options.map((o) => o.value).sort();
 		assert.equal(valores.length, 8);
 		assert.ok(valores.every((v) => v.startsWith('ECOMMERCE_')));
-		for (const descontinuado of ['ORDER_PLACED', 'ORDER_PLACED_ITEM', 'CART_ABANDONED', 'CART_ABANDONED_ITEM']) {
+		for (const descontinuado of [
+			'ORDER_PLACED',
+			'ORDER_PLACED_ITEM',
+			'CART_ABANDONED',
+			'CART_ABANDONED_ITEM',
+		]) {
 			assert.equal(valores.includes(descontinuado), false);
 		}
 	});
@@ -206,7 +235,10 @@ describe('Event', () => {
 
 	it('C72 - Send Batch chama POST /platform/events/batch com os 3 eventos e devolve o lote', async () => {
 		const lote = [evento(1), evento(2), evento(3)];
-		const resposta = { event_batch_uuid: 'b-1', events: [{ event_uuid: 'e1' }, { event_uuid: 'e2' }, { event_uuid: 'e3' }] };
+		const resposta = {
+			event_batch_uuid: 'b-1',
+			events: [{ event_uuid: 'e1' }, { event_uuid: 'e2' }, { event_uuid: 'e3' }],
+		};
 		const { json, requisicoes } = await executarJson(
 			{ resource: 'event', operation: 'sendBatch', events: JSON.stringify(lote) },
 			() => resposta,
@@ -222,7 +254,10 @@ describe('Event', () => {
 			payload: { ...evento(n).payload, bio: 'x'.repeat(120) },
 		}));
 		await assert.rejects(
-			executarJson({ resource: 'event', operation: 'sendBatch', events: JSON.stringify(grande) }, semChamada),
+			executarJson(
+				{ resource: 'event', operation: 'sendBatch', events: JSON.stringify(grande) },
+				semChamada,
+			),
 			(erro) => {
 				assert.equal(erro.message, 'The batch is larger than 0.2 MB [item 0]');
 				assert.equal(erro.description, 'Split the events into smaller batches');
@@ -231,10 +266,15 @@ describe('Event', () => {
 		);
 	});
 
-	it("C74 - JSON inválido em Custom Event e Batch lança \"The 'Payload' parameter is not valid JSON [item 0]\"", async () => {
+	it('C74 - JSON inválido em Custom Event e Batch lança "The \'Payload\' parameter is not valid JSON [item 0]"', async () => {
 		await assert.rejects(
 			executarJson(
-				{ resource: 'event', operation: 'sendCustomEvent', eventType: 'ECOMMERCE_ORDER_PAID', payload: '{nao e json' },
+				{
+					resource: 'event',
+					operation: 'sendCustomEvent',
+					eventType: 'ECOMMERCE_ORDER_PAID',
+					payload: '{nao e json',
+				},
 				semChamada,
 			),
 			(erro) => {

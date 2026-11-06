@@ -51,7 +51,8 @@ function contexto(parametros, responder, extras = {}) {
 				requisicoes.push({ tipoCredencial, ...opcoes });
 				return responder ? responder(opcoes, requisicoes.length) : {};
 			},
-			returnJsonArray: (dados) => (Array.isArray(dados) ? dados : [dados]).map((json) => ({ json })),
+			returnJsonArray: (dados) =>
+				(Array.isArray(dados) ? dados : [dados]).map((json) => ({ json })),
 			constructExecutionMetaData: (dados, { itemData }) =>
 				dados.map((d) => ({ ...d, pairedItem: itemData })),
 		},
@@ -61,7 +62,9 @@ function contexto(parametros, responder, extras = {}) {
 
 // Roda o `execute` do node de ação com os parâmetros dados e devolve saída e requisições.
 async function executar(parametros, responder, extras = {}) {
-	const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+	const {
+		RdStationMarketing,
+	} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 	const ctx = contexto(parametros, responder, extras);
 	const saida = await new RdStationMarketing().execute.call(ctx);
 	return { saida: saida[0], requisicoes: ctx.requisicoes, ctx };

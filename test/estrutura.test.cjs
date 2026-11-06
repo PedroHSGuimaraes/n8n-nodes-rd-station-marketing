@@ -93,7 +93,13 @@ describe('Pacote', () => {
 
 	it('C8 - o README está em PT-BR com as 5 seções e o CHANGELOG tem a seção 1.0.0', () => {
 		const readme = ler('README.md');
-		for (const secao of ['Instalação', 'Credenciais', 'Recursos e Operações', 'Exemplos', 'Desenvolvimento']) {
+		for (const secao of [
+			'Instalação',
+			'Credenciais',
+			'Recursos e Operações',
+			'Exemplos',
+			'Desenvolvimento',
+		]) {
 			assert.match(readme, new RegExp(`^## ${secao}`, 'm'), `README sem a seção ${secao}`);
 		}
 		assert.match(ler('CHANGELOG.md'), /^## 1\.0\.0/m);
@@ -101,7 +107,9 @@ describe('Pacote', () => {
 });
 
 describe('Descritores', () => {
-	const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+	const {
+		RdStationMarketing,
+	} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 	const {
 		RdStationMarketingTrigger,
 	} = require('../dist/nodes/RdStationMarketingTrigger/RdStationMarketingTrigger.node');
@@ -138,7 +146,10 @@ describe('Descritores', () => {
 				assert.equal(p.default.mode, 'list', `${id} não abre em From list`);
 				const lista = p.modes.find((m) => m.name === 'list');
 				assert.equal(lista.typeOptions.searchable, true, `${id} sem busca`);
-				assert.ok(p.modes.some((m) => m.name === 'id'), `${id} sem modo id`);
+				assert.ok(
+					p.modes.some((m) => m.name === 'id'),
+					`${id} sem modo id`,
+				);
 			}
 		}
 	});

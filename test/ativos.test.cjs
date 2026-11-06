@@ -72,7 +72,14 @@ describe('Campaign', () => {
 		assert.deepEqual(unica.json, [{ id: 9, name: 'Black Friday' }]);
 
 		const itens = await executarJson(
-			{ resource: 'campaign', operation: 'getItems', campaignId: '9', itemType: '', returnAll: false, limit: 10 },
+			{
+				resource: 'campaign',
+				operation: 'getItems',
+				campaignId: '9',
+				itemType: '',
+				returnAll: false,
+				limit: 10,
+			},
 			() => ({ items: [{ platform_item_id: 1 }, { platform_item_id: 2 }] }),
 		);
 		assert.equal(itens.requisicoes[0].url, '/platform/campaigns/9/items');
@@ -82,7 +89,14 @@ describe('Campaign', () => {
 
 	it('C54 - Get Items com itemType email envia item_type=email', async () => {
 		const { requisicoes } = await executarJson(
-			{ resource: 'campaign', operation: 'getItems', campaignId: '9', itemType: 'email', returnAll: false, limit: 10 },
+			{
+				resource: 'campaign',
+				operation: 'getItems',
+				campaignId: '9',
+				itemType: 'email',
+				returnAll: false,
+				limit: 10,
+			},
 			() => ({ items: [] }),
 		);
 		assert.equal(requisicoes[0].qs.item_type, 'email');

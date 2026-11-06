@@ -66,7 +66,7 @@ describe('Custom Field', () => {
 		});
 	});
 
-	it("C32 - api_identifier sem cf_ lança o erro do plano sem chamar a RD", async () => {
+	it('C32 - api_identifier sem cf_ lança o erro do plano sem chamar a RD', async () => {
 		await assert.rejects(
 			executarJson(
 				{
@@ -120,7 +120,9 @@ describe('Custom Field', () => {
 	});
 
 	it('C35 - o loadOptions mantém só custom_field verdadeiro e devolve { name, value: api_identifier }', async () => {
-		const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+		const {
+			RdStationMarketing,
+		} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 		const padrao = {
 			uuid: 'p-1',
 			api_identifier: 'email',
@@ -135,7 +137,9 @@ describe('Custom Field', () => {
 	});
 
 	it('C35 - o listSearch de campos devolve { name, value: uuid } e filtra pela busca', async () => {
-		const { RdStationMarketing } = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
+		const {
+			RdStationMarketing,
+		} = require('../dist/nodes/RdStationMarketing/RdStationMarketing.node');
 		const ctx = contexto({}, () => ({ fields: [campo(1), campo(2)] }));
 		const { results } = await new RdStationMarketing().methods.listSearch.searchCustomFields.call(
 			ctx,
