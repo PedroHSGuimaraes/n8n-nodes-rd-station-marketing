@@ -178,7 +178,7 @@ export function translateRdError(
 
 	// Sem tradução específica, usa o texto da RD quando existir e deixa o n8n montar o resto.
 	const rdText = pick(body, ['errors', 'error_message']) ?? body.error_message ?? body.error;
-	const finalMessage = message ?? (typeof rdText === 'string' ? rdText : undefined) ?? undefined;
+	const finalMessage = message ?? (typeof rdText === 'string' ? rdText : undefined);
 	return new NodeApiError(node, (body.errors ? body : (error as JsonObject)) as JsonObject, {
 		message: finalMessage ? `${finalMessage}${suffix}` : undefined,
 		description,
