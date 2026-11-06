@@ -69,9 +69,12 @@ describe('Pacote', () => {
 		const publicar = ler('.github', 'workflows', 'publish.yml');
 		assert.match(publicar, /tags:\s*\n\s*- 'v\*\.\*\.\*'/);
 		assert.match(publicar, /GITHUB_REF_NAME.*v\$\{PACKAGE_VERSION\}/);
-		for (const comando of ['npm run lint', 'npm test', 'npm run build', 'npm run release']) {
+		for (const comando of ['npm run lint', 'npm test', 'npm run build']) {
 			assert.ok(publicar.includes(`run: ${comando}`), `publish sem "${comando}"`);
 		}
+		// Desde o token stage only (06/11/2026) a publicação é o `npm stage publish` (check C110),
+		// e não mais o `npm run release`, que falharia com E_STAGE_REQUIRED.
+		assert.ok(publicar.includes('stage publish'), 'publish sem "stage publish"');
 		assert.match(publicar, /id-token: write/);
 		assert.equal(pacote.publishConfig.provenance, true);
 	});

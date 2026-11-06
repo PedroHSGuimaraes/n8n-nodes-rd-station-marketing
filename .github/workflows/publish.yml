@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  # Deixa o dono republicar (e aprovar de novo) sem mover a tag.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -42,7 +44,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish package
-        run: npm run release
+      # O token NPM_TOKEN é granular "Read and write (stage only)" (decisão do dono, 06/11/2026):
+      # com ele `npm publish` e `npm run release` falham com E_STAGE_REQUIRED. A versão vai para a fila
+      # de espera e o dono a aprova com 2FA na aba Staged Packages do npmjs.com.
+      # `npm stage` só existe no npm 12; o Node LTS do runner traz o npm 11, por isso o npx fixa a versão.
+      # `prepublishOnly` roda `n8n-node prerelease`, que encerra com código 1 sem RELEASE_MODE.
+      - name: Stage package for approval
+        run: npx -y npm@12.2.2 stage publish --provenance --access public
         env:
+          RELEASE_MODE: 'true'
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
