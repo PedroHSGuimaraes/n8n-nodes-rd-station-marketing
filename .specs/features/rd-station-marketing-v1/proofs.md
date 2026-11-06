@@ -1,9 +1,9 @@
 # rd-station-marketing-v1 proofs
 
-**HEAD**: 2e3e670
+**HEAD**: 6de2a8d
 **Tree**: clean
 **Shell**: /bin/sh
-**Result**: 97 pass, 1 fail
+**Result**: 98 pass, 0 fail
 
 | Check | Proof | Result |
 | --- | --- | --- |
@@ -99,7 +99,7 @@
 | C90 | `run unit / ✔ C90 -` | pass |
 | C91 | `run unit / ✔ C91 -` | pass |
 | C92 | `run unit / ✔ C92 -` | pass |
-| C93 | `run unit / ✔ C93 -` | **no test ran** |
+| C93 | `run unit / ✔ C93 -` | pass |
 | C94 | `run unit / ✔ C94 -` | pass |
 | C95 | `run unit / ✔ C95 -` | pass |
 | Build | `npm run build` | pass |
@@ -111,21 +111,21 @@
 `Run unit` - exit 0
 
 ```
-  ✔ C43 - Get Many extrai os itens da chave wokflows (grafada errado) (0.391755ms)
-  ✔ C44 - Get chama GET /platform/workflows/<id> e devolve workflow_info (0.23182ms)
-  ✔ C45 - Add Leads envia { leads } e devolve leads_added e leads_not_found (0.385631ms)
-  ✔ C46 - Started, Left e Action Executed chamam as 3 rotas de leads com as datas (0.527382ms)
-  ✔ C47 - endDate antes de startDate lança o erro do plano sem chamar a RD (0.851358ms)
-  ✔ C48 - o loadOptions de ações lê o fluxo e devolve { name: type, value: id } (0.23354ms)
-✔ Automation Flow (2.985641ms)
-ℹ tests 93
-ℹ suites 19
-ℹ pass 93
+  ✔ C46 - Started, Left e Action Executed chamam as 3 rotas de leads com as datas (0.51939ms)
+  ✔ C47 - endDate antes de startDate lança o erro do plano sem chamar a RD (0.855789ms)
+  ✔ C48 - o loadOptions de ações lê o fluxo e devolve { name: type, value: id } (0.284633ms)
+✔ Automation Flow (2.717419ms)
+▶ Listas do editor
+  ✔ C93 - o listSearch com 401 da RD lança NodeApiError com a mensagem do plano (1.160249ms)
+✔ Listas do editor (1.308502ms)
+ℹ tests 94
+ℹ suites 20
+ℹ pass 94
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 975.975207
+ℹ duration_ms 1076.252394
 ```
 
 `npm run lint` - exit 0

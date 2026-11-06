@@ -358,7 +358,7 @@ Proof: run unit | ✔ C95 -
 ## Handoff
 
 - **Settled mid-build:** 06/11/2026, dono: a tag `v1.0.0` só sai depois que ele testar com conta real (renovação do token OAuth2 e campos `cf_*`). O pacote fica com version 1.0.0, CHANGELOG, CI e publish prontos, sem tag, e o README explica o teste local com `npm run dev`. O `npm view` do C6 espera essa tag.
-- **Dispatched:** none yet
-- **Boundary:** nenhum check fechado ainda
+- **Dispatched:** Verifier (sonnet, sub-agente novo) em 06/11/2026 sobre o `HEAD` que contém este commit; returned: não
+- **Boundary:** C1-C95 fechados e `check_proofs.py` com 98 pass e 0 fail em `6de2a8d`
 - **Abandoned:** none
 - **Walked:** n/a - sem tela do repositório; o editor do n8n é testado pelo dono com `npm run dev`
