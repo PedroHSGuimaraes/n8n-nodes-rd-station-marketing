@@ -7,7 +7,7 @@ Plan: `.specs/features/rd-station-marketing-v1/plan.md`
 Cada teste do `test/*.test.cjs` abre o nome com o id do check (`C18 - ...`). A linha de prova procura
 `✔ C18 -` na saída do reporter `spec`, então um teste renomeado ou removido vira `no test ran`.
 
-111 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
+112 checks in 13 slices · 6 one-way doors · 0 open, of which 0 block
 
 ## Checks
 
@@ -369,6 +369,9 @@ Proof: run unit | ✔ C110 -
 
 **C111** - O pacote se chama `@pexuleco/n8n-nodes-rd-station-marketing`, `publishConfig.access` é `public` e o README instala pelo nome com escopo (o npm recusou o nome sem escopo com E400 por colidir com `n8n-nodes-rdstation-marketing`; AD-015)
 Proof: run unit | ✔ C111 -
+
+**C112** - O README tem as seções do padrão do README do RD CRM (Funcionalidades, Instalação, Credenciais, Recursos e Operações, Gatilho, Usar como Tool de Agente de IA, Desenvolvimento, Compatibilidade, Recursos, Publicação, Versões, Suporte, Apoie o projeto, Licença), a variável `N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true`, exemplos de `$fromAI(`, toda versão do CHANGELOG em Versões, e o `package.json` traz `funding` com o link do Buy Me a Coffee (AD-016)
+Proof: run unit | ✔ C112 -
 
 ## Coverage
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- **README completo.** O README segue o padrão do README do RD CRM: selo de apoio, índice, Funcionalidades, Instalação, Credenciais, Recursos e Operações, Gatilho, Usar como Tool de Agente de IA, Desenvolvimento, Compatibilidade, Recursos, Publicação, Versões, Suporte, Apoie o projeto e Licença.
+- **Metadados.** O `package.json` ganha o campo `funding` (Buy Me a Coffee, mostrado pelo `npm fund`) e mais palavras-chave. Nenhum código mudou.
+
 ## 1.0.0
 
 - **Primeira versão do pacote.** O `@pexuleco/n8n-nodes-rd-station-marketing` cobre o RD Station Marketing em um node de ação e em um gatilho. O RD Station CRM continua no pacote `n8n-nodes-rd-station-crm`.

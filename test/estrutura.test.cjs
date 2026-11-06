@@ -1,5 +1,5 @@
 /**
- * Testes de estrutura do pacote (checks C1, C3, C5 a C8, C91, C92, C95 e C111).
+ * Testes de estrutura do pacote (checks C1, C3, C5 a C8, C91, C92, C95, C111 e C112).
  *
  * Eles leem o `package.json`, os workflows, o `dist/` gerado pelo build e os descritores dos nodes.
  * Servem de rede de proteção para o que o n8n e o npm esperam do pacote: nomes persistidos nos
@@ -45,7 +45,7 @@ describe('Pacote', () => {
 
 	it('C3 - o package.json traz os campos do plano e nenhum dependencies', () => {
 		assert.equal(pacote.name, '@pexuleco/n8n-nodes-rd-station-marketing');
-		assert.equal(pacote.version, '1.0.0');
+		assert.equal(pacote.version, '1.0.1');
 		assert.equal(pacote.license, 'MIT');
 		assert.ok(pacote.keywords.includes('n8n-community-node-package'));
 		assert.equal(pacote.scripts.build, 'n8n-node build');
@@ -103,9 +103,10 @@ describe('Pacote', () => {
 			'Exemplos',
 			'Desenvolvimento',
 		]) {
-			assert.match(readme, new RegExp(`^## ${secao}`, 'm'), `README sem a seção ${secao}`);
+			assert.match(readme, new RegExp(`^## (\\S+ )?${secao}`, 'm'), `README sem a seção ${secao}`);
 		}
 		assert.match(ler('CHANGELOG.md'), /^## 1\.0\.0/m);
+		assert.match(ler('CHANGELOG.md'), /^## 1\.0\.1/m);
 	});
 });
 
@@ -173,9 +174,44 @@ describe('Descritores', () => {
 		assert.equal(pacote.name, nome);
 		assert.equal(pacote.publishConfig.access, 'public');
 		// A instrução de instalação é o bloco de código logo depois do título "Instalação".
-		const instalacao = ler('README.md').split('## Instalação')[1].split('##')[0];
+		const instalacao = ler('README.md').split(/^## (?:\S+ )?Instalação/m)[1].split('##')[0];
 		assert.ok(instalacao.includes('\n' + nome + '\n'), 'README sem o nome com escopo na instalação');
 		// O CHANGELOG da 1.0.0 também cita o pacote pelo nome publicado, para quem lê o histórico.
 		assert.ok(ler('CHANGELOG.md').includes('`' + nome + '`'), 'CHANGELOG sem o nome com escopo');
+	});
+
+	// C112: o dono pediu (06/11/2026) "sempre postar com documentação completa igual do rd crm". Este
+	// teste falha se o README perder uma seção do padrão do README do RD CRM ou se o `package.json`
+	// perder o `funding` (o link do Buy Me a Coffee que o `npm fund` mostra).
+	it('C112 - o README tem as seções do padrão do RD CRM e o package.json tem funding', () => {
+		const readme = ler('README.md');
+		for (const secao of [
+			'Funcionalidades',
+			'Instalação',
+			'Credenciais',
+			'Recursos e Operações',
+			'Gatilho',
+			'Usar como Tool de Agente de IA',
+			'Desenvolvimento',
+			'Compatibilidade',
+			'Recursos',
+			'Publicação',
+			'Versões',
+			'Suporte',
+			'Apoie o projeto',
+			'Licença',
+		]) {
+			assert.match(readme, new RegExp(`^## \\S+ ${secao}$`, 'm'), `README sem a seção ${secao}`);
+		}
+		// A seção de IA traz a variável que liga a tool e o `$fromAI` com operação real do pacote.
+		assert.match(readme, /N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true/);
+		assert.match(readme, /\$fromAI\(/);
+		// O selo e o link de apoio apontam para o mesmo Buy Me a Coffee do `funding`.
+		assert.deepEqual(pacote.funding, { type: 'individual', url: 'https://buymeacoffee.com/qTny0AzFXS' });
+		assert.ok(readme.includes(pacote.funding.url), 'README sem o link de apoio');
+		// A seção Versões lista toda versão que o CHANGELOG tem.
+		for (const [, versao] of ler('CHANGELOG.md').matchAll(/^## (\d+\.\d+\.\d+)/gm)) {
+			assert.ok(readme.includes('**' + versao + '**'), `README sem a versão ${versao} em Versões`);
+		}
 	});
 });
