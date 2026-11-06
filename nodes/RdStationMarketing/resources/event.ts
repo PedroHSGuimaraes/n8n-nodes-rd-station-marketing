@@ -45,13 +45,24 @@ const optional = (
 // Campos opcionais da conversão. Dados do contato primeiro, depois origem do tráfego e consentimento.
 const CONVERSION_FIELDS: PayloadField[] = [
 	// Consentimento: se o contato aceita receber e-mails.
-	optional('Available For Mailing', 'availableForMailing', 'available_for_mailing', 'Whether the contact accepts receiving emails', 'boolean'),
+	optional(
+		'Available For Mailing',
+		'availableForMailing',
+		'available_for_mailing',
+		'Whether the contact accepts receiving emails',
+		'boolean',
+	),
 	// Localização do contato.
 	optional('City', 'city', 'city', 'City of the contact'),
 	optional('Country', 'country', 'country', 'Country of the contact'),
 	optional('State', 'state', 'state', 'State of the contact'),
 	// O cookie `_rdtrk` liga a visita do site ao contato na RD.
-	optional('Client Tracking ID', 'clientTrackingId', 'client_tracking_id', 'Value of the _rdtrk cookie, used to link the visit to the contact'),
+	optional(
+		'Client Tracking ID',
+		'clientTrackingId',
+		'client_tracking_id',
+		'Value of the _rdtrk cookie, used to link the visit to the contact',
+	),
 	// Dados da empresa do contato.
 	optional('Company Name', 'companyName', 'company_name', 'Name of the contact company'),
 	optional('Company Site', 'companySite', 'company_site', 'Website of the contact company'),
@@ -61,12 +72,22 @@ const CONVERSION_FIELDS: PayloadField[] = [
 	optional('Website', 'website', 'website', 'Website of the contact'),
 	// Telefones: a RD exige o formato E.164.
 	optional('Mobile Phone', 'mobilePhone', 'mobile_phone', 'Mobile phone in the E.164 format'),
-	optional('Personal Phone', 'personalPhone', 'personal_phone', 'Personal phone in the E.164 format'),
+	optional(
+		'Personal Phone',
+		'personalPhone',
+		'personal_phone',
+		'Personal phone in the E.164 format',
+	),
 	optional('Phone', 'phone', 'phone', 'Phone in the E.164 format, for example +5511987654321'),
 	// As tags chegam separadas por vírgula e viram lista no payload.
 	optional('Tags', 'tags', 'tags', 'Comma-separated tags'),
 	// Origem do tráfego que trouxe o contato.
-	optional('Traffic Campaign', 'trafficCampaign', 'traffic_campaign', 'Campaign that brought the contact'),
+	optional(
+		'Traffic Campaign',
+		'trafficCampaign',
+		'traffic_campaign',
+		'Campaign that brought the contact',
+	),
 	optional('Traffic Medium', 'trafficMedium', 'traffic_medium', 'Medium that brought the contact'),
 	optional('Traffic Source', 'trafficSource', 'traffic_source', 'Source that brought the contact'),
 ];
@@ -78,20 +99,47 @@ const NAME_FIELD: PayloadField = CONVERSION_FIELDS.find((f) => f.name === 'name'
 // Campos opcionais do evento de ligação.
 const CALL_FIELDS: PayloadField[] = [
 	// Duração em segundos e início no formato RFC 3339.
-	optional('Call Duration', 'callDuration', 'call_duration', 'Duration of the call in seconds', 'number'),
-	optional('Call Started At', 'callStartedAt', 'call_started_at', 'Start of the call in the RFC 3339 format'),
+	optional(
+		'Call Duration',
+		'callDuration',
+		'call_duration',
+		'Duration of the call in seconds',
+		'number',
+	),
+	optional(
+		'Call Started At',
+		'callStartedAt',
+		'call_started_at',
+		'Start of the call in the RFC 3339 format',
+	),
 	// Link da gravação, tipo da chamada e usuário que ligou.
 	optional('Call Record', 'callRecord', 'call_record', 'URL of the call recording'),
 	optional('Call Type', 'callType', 'call_type', 'Type of the call'),
-	optional('Call User Email', 'callUserEmail', 'call_user_email', 'Email of the user who made the call'),
-	optional('Call Status Description', 'callStatusDescription', 'call_status_description', 'Free text that describes the status'),
+	optional(
+		'Call User Email',
+		'callUserEmail',
+		'call_user_email',
+		'Email of the user who made the call',
+	),
+	optional(
+		'Call Status Description',
+		'callStatusDescription',
+		'call_status_description',
+		'Free text that describes the status',
+	),
 	PHONE_FIELD,
 ];
 
 // Campos opcionais do evento de mídia.
 const MEDIA_FIELDS: PayloadField[] = [
 	optional('Media Category', 'mediaCategory', 'media_category', 'Category of the media'),
-	optional('Media Duration', 'mediaDuration', 'media_duration', 'Duration of the media in seconds', 'number'),
+	optional(
+		'Media Duration',
+		'mediaDuration',
+		'media_duration',
+		'Duration of the media in seconds',
+		'number',
+	),
 	PHONE_FIELD,
 ];
 
@@ -184,10 +232,16 @@ const properties: INodeProperties[] = [
 		displayOptions: showFor('event', ['sendConversion']),
 	},
 	// Identificador da conversão, o mesmo que a RD mostra nos relatórios.
-	text('Conversion Identifier', 'conversionIdentifier', ['sendConversion'], 'Identifier of the conversion in RD Station', {
-		required: true,
-		placeholder: 'e.g. newsletter',
-	}),
+	text(
+		'Conversion Identifier',
+		'conversionIdentifier',
+		['sendConversion'],
+		'Identifier of the conversion in RD Station',
+		{
+			required: true,
+			placeholder: 'e.g. newsletter',
+		},
+	),
 	// E-mail do contato; a RD aceita e-mail ou telefone, e o telefone fica nos campos adicionais.
 	text('Email', 'email', WITH_EMAIL, 'Email of the contact. Provide an email or a phone.', {
 		placeholder: 'name@email.com',
@@ -220,7 +274,12 @@ const properties: INodeProperties[] = [
 		displayOptions: showFor('event', ['sendChatEvent']),
 	},
 	// Assunto do chat (obrigatório quando começou).
-	text('Chat Subject', 'chatSubject', ['sendChatEvent'], 'Subject of the chat. Required when the chat started.'),
+	text(
+		'Chat Subject',
+		'chatSubject',
+		['sendChatEvent'],
+		'Subject of the chat. Required when the chat started.',
+	),
 	{
 		// Status do atendente durante o chat.
 		displayName: 'Chat Status',
@@ -242,13 +301,21 @@ const properties: INodeProperties[] = [
 		typeOptions: { rows: 4 },
 		default: '',
 		description: 'Transcript of the chat. Required when the chat finished.',
-		displayOptions: { show: { resource: ['event'], operation: ['sendChatEvent'], chatEvent: ['Finished'] } },
+		displayOptions: {
+			show: { resource: ['event'], operation: ['sendChatEvent'], chatEvent: ['Finished'] },
+		},
 	},
 	// Número de origem e resultado da ligação, ambos obrigatórios na RD.
-	text('Call From Number', 'callFromNumber', ['sendCallFinished'], 'Phone number the call came from', {
-		required: true,
-		placeholder: 'e.g. +5511987654321',
-	}),
+	text(
+		'Call From Number',
+		'callFromNumber',
+		['sendCallFinished'],
+		'Phone number the call came from',
+		{
+			required: true,
+			placeholder: 'e.g. +5511987654321',
+		},
+	),
 	text('Call Status', 'callStatus', ['sendCallFinished'], 'Result of the call', {
 		required: true,
 		placeholder: 'e.g. answered',
@@ -301,7 +368,8 @@ const properties: INodeProperties[] = [
 		type: 'json',
 		required: true,
 		default: '{}',
-		description: 'Payload of the event as JSON, with the fields described in the RD Station documentation',
+		description:
+			'Payload of the event as JSON, with the fields described in the RD Station documentation',
 		displayOptions: showFor('event', ['sendCustomEvent']),
 	},
 	{
@@ -396,7 +464,9 @@ const sendConversion: OperationHandler = async function (i) {
 	);
 	const identifier = this.getNodeParameter('conversionIdentifier', i) as string;
 	requireValue(this, i, identifier, 'Conversion Identifier');
-	const authentication = this.getNodeParameter('authentication', i, 'oAuth2') as 'oAuth2' | 'apiKey';
+	const authentication = this.getNodeParameter('authentication', i, 'oAuth2') as
+		| 'oAuth2'
+		| 'apiKey';
 	// Campos padrão e personalizados vão juntos dentro do payload.
 	const payload = compact({
 		conversion_identifier: identifier,
@@ -506,15 +576,50 @@ export const eventResource: ResourceModule = {
 	operationSelector: operationSelector(
 		'event',
 		[
-			op('Mark Lost Opportunity', 'markLostOpportunity', 'Mark a lost opportunity', 'Mark that an opportunity was lost'),
-			op('Mark Opportunity', 'markOpportunity', 'Mark an opportunity', 'Mark a contact as an opportunity'),
+			op(
+				'Mark Lost Opportunity',
+				'markLostOpportunity',
+				'Mark a lost opportunity',
+				'Mark that an opportunity was lost',
+			),
+			op(
+				'Mark Opportunity',
+				'markOpportunity',
+				'Mark an opportunity',
+				'Mark a contact as an opportunity',
+			),
 			op('Mark Sale', 'markSale', 'Mark a sale', 'Mark that an opportunity became a sale'),
 			op('Send Batch', 'sendBatch', 'Send a batch of events', 'Send many events in one request'),
-			op('Send Call Finished', 'sendCallFinished', 'Send a call finished event', 'Register a finished call'),
-			op('Send Chat Event', 'sendChatEvent', 'Send a chat event', 'Register the start or the end of a chat'),
-			op('Send Conversion', 'sendConversion', 'Send a conversion', 'Register a conversion and create or update the contact'),
-			op('Send Custom Event', 'sendCustomEvent', 'Send an e-commerce event', 'Send an e-commerce event with a JSON payload'),
-			op('Send Media Event', 'sendMediaEvent', 'Send a media event', 'Register the start or the end of an audio or video playback'),
+			op(
+				'Send Call Finished',
+				'sendCallFinished',
+				'Send a call finished event',
+				'Register a finished call',
+			),
+			op(
+				'Send Chat Event',
+				'sendChatEvent',
+				'Send a chat event',
+				'Register the start or the end of a chat',
+			),
+			op(
+				'Send Conversion',
+				'sendConversion',
+				'Send a conversion',
+				'Register a conversion and create or update the contact',
+			),
+			op(
+				'Send Custom Event',
+				'sendCustomEvent',
+				'Send an e-commerce event',
+				'Send an e-commerce event with a JSON payload',
+			),
+			op(
+				'Send Media Event',
+				'sendMediaEvent',
+				'Send a media event',
+				'Register the start or the end of an audio or video playback',
+			),
 		],
 		'sendConversion',
 	),

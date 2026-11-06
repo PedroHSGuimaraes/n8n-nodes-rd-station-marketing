@@ -20,7 +20,10 @@ export class RdStationMarketingApi implements ICredentialType {
 
 	documentationUrl = 'https://developers.rdstation.com/reference/autenticacao-api-key';
 
-	icon = { light: 'file:rdStationMarketing.svg', dark: 'file:rdStationMarketing.dark.svg' } as const;
+	icon = {
+		light: 'file:rdStationMarketing.svg',
+		dark: 'file:rdStationMarketing.dark.svg',
+	} as const;
 
 	properties: INodeProperties[] = [
 		{

@@ -19,7 +19,10 @@ export function extractItems(response: unknown, itemsKey?: string): IDataObject[
 	if (itemsKey) {
 		let current: unknown = record;
 		for (const key of itemsKey.split('.')) {
-			current = current !== null && typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined;
+			current =
+				current !== null && typeof current === 'object'
+					? (current as Record<string, unknown>)[key]
+					: undefined;
 		}
 		if (Array.isArray(current)) return current as IDataObject[];
 	}
@@ -79,10 +82,14 @@ export function requireEmailOrPhone(
 	description = 'The contact needs at least one of them to be created',
 ): void {
 	if (isEmpty(email) && isEmpty(phone)) {
-		throw new NodeOperationError(context.getNode(), `Provide an email or a phone [item ${itemIndex}]`, {
-			itemIndex,
-			description,
-		});
+		throw new NodeOperationError(
+			context.getNode(),
+			`Provide an email or a phone [item ${itemIndex}]`,
+			{
+				itemIndex,
+				description,
+			},
+		);
 	}
 }
 

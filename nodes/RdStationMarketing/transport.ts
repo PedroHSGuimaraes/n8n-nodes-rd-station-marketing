@@ -106,7 +106,8 @@ function firstFieldError(body: IDataObject): { field: string; type: string } | u
 // Converte o `remaining_time` (milissegundos) em segundos inteiros para cima; sem ele, orienta por minutos.
 function waitText(body: IDataObject): string {
 	const remaining = Number(body.remaining_time);
-	if (!Number.isFinite(remaining) || remaining <= 0) return 'Wait a few minutes and run the node again';
+	if (!Number.isFinite(remaining) || remaining <= 0)
+		return 'Wait a few minutes and run the node again';
 	const seconds = Math.ceil(remaining / 1000);
 	return `Wait ${seconds} ${seconds === 1 ? 'second' : 'seconds'} and run the node again`;
 }
@@ -151,8 +152,7 @@ export function translateRdError(
 
 	// Sem tradução específica, usa o texto da RD quando existir e deixa o n8n montar o resto.
 	const rdText = pick(body, ['errors', 'error_message']) ?? body.error_message ?? body.error;
-	const finalMessage =
-		(message ?? (typeof rdText === 'string' ? rdText : undefined)) ?? undefined;
+	const finalMessage = message ?? (typeof rdText === 'string' ? rdText : undefined) ?? undefined;
 	return new NodeApiError(node, (body.errors ? body : (error as JsonObject)) as JsonObject, {
 		message: finalMessage ? `${finalMessage}${suffix}` : undefined,
 		description,

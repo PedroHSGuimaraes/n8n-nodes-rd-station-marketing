@@ -93,9 +93,14 @@ const get: OperationHandler = async function (i) {
 	const identifier = this.getNodeParameter('identifier', i) as string;
 	// Sem identificador a rota seria inválida; avisar antes poupa a ida à rede.
 	requireValue(this, i, identifier, 'Identifier');
-	return rdMarketingApiRequest.call(this, 'GET', `${contactPath(type, identifier)}/funnels/default`, {
-		itemIndex: i,
-	});
+	return rdMarketingApiRequest.call(
+		this,
+		'GET',
+		`${contactPath(type, identifier)}/funnels/default`,
+		{
+			itemIndex: i,
+		},
+	);
 };
 
 // Funnel → Update: monta o corpo só com o que foi preenchido.
@@ -115,10 +120,15 @@ const update: OperationHandler = async function (i) {
 		// Dono novo; campo vazio é omitido para não apagar o dono atual.
 		body.contact_owner_email = fields.contactOwnerEmail;
 	}
-	return rdMarketingApiRequest.call(this, 'PUT', `${contactPath(type, identifier)}/funnels/default`, {
-		body,
-		itemIndex: i,
-	});
+	return rdMarketingApiRequest.call(
+		this,
+		'PUT',
+		`${contactPath(type, identifier)}/funnels/default`,
+		{
+			body,
+			itemIndex: i,
+		},
+	);
 };
 
 export const funnelResource: ResourceModule = {

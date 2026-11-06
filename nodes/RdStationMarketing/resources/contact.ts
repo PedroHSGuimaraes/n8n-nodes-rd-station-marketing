@@ -18,18 +18,38 @@ import { rdMarketingApiRequest, rdMarketingPaginate } from '../transport';
 
 // Campos do contato aceitos pela RD. `name` é o nome salvo no workflow e `key` é o nome na API;
 // guardar os dois lado a lado evita converter camelCase em snake_case por regra de texto.
-const CONTACT_FIELDS: Array<{ displayName: string; name: string; key: string; description: string }> = [
+const CONTACT_FIELDS: Array<{
+	displayName: string;
+	name: string;
+	key: string;
+	description: string;
+}> = [
 	// Texto livre que descreve a pessoa.
 	{ displayName: 'Bio', name: 'bio', key: 'bio', description: 'Short biography of the contact' },
 	// A RD só aceita a data neste formato.
-	{ displayName: 'Birthdate', name: 'birthdate', key: 'birthdate', description: 'Format YYYY-MM-DD' },
+	{
+		displayName: 'Birthdate',
+		name: 'birthdate',
+		key: 'birthdate',
+		description: 'Format YYYY-MM-DD',
+	},
 	// Localização do contato, três campos de texto simples.
 	{ displayName: 'City', name: 'city', key: 'city', description: 'City of the contact' },
-	{ displayName: 'Country', name: 'country', key: 'country', description: 'Country of the contact' },
+	{
+		displayName: 'Country',
+		name: 'country',
+		key: 'country',
+		description: 'Country of the contact',
+	},
 	// Perfis em redes sociais, todos texto livre.
 	{ displayName: 'Facebook', name: 'facebook', key: 'facebook', description: 'Facebook profile' },
 	// A API usa snake_case (`job_title`); o workflow guarda `jobTitle`.
-	{ displayName: 'Job Title', name: 'jobTitle', key: 'job_title', description: 'Job title of the contact' },
+	{
+		displayName: 'Job Title',
+		name: 'jobTitle',
+		key: 'job_title',
+		description: 'Job title of the contact',
+	},
 	{ displayName: 'LinkedIn', name: 'linkedin', key: 'linkedin', description: 'LinkedIn profile' },
 	// Telefones: a RD exige o formato E.164 (`+5511987654321`) e devolve INVALID_PHONE_NUMBER se não vier.
 	{
@@ -52,7 +72,12 @@ const CONTACT_FIELDS: Array<{ displayName: string; name: string; key: string; de
 	},
 	{ displayName: 'State', name: 'state', key: 'state', description: 'State of the contact' },
 	{ displayName: 'Twitter', name: 'twitter', key: 'twitter', description: 'Twitter profile' },
-	{ displayName: 'Website', name: 'website', key: 'website', description: 'Website of the contact' },
+	{
+		displayName: 'Website',
+		name: 'website',
+		key: 'website',
+		description: 'Website of the contact',
+	},
 ];
 
 // Monta a lista de opções de uma coleção a partir de CONTACT_FIELDS mais os campos extras da operação.

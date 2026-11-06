@@ -133,9 +133,14 @@ const update: OperationHandler = async function (i) {
 
 // Webhook → Delete.
 const remove: OperationHandler = async function (i) {
-	await rdMarketingApiRequest.call(this, 'DELETE', `/integrations/webhooks/${webhookIdOf(this, i)}`, {
-		itemIndex: i,
-	});
+	await rdMarketingApiRequest.call(
+		this,
+		'DELETE',
+		`/integrations/webhooks/${webhookIdOf(this, i)}`,
+		{
+			itemIndex: i,
+		},
+	);
 	// A RD responde 204 sem corpo; o item `deleted` deixa o workflow seguir.
 	return { deleted: true };
 };
@@ -146,11 +151,31 @@ export const webhookResource: ResourceModule = {
 	operationSelector: operationSelector(
 		'webhook',
 		[
-			{ name: 'Create', value: 'create', action: 'Create a webhook', description: 'Register a webhook in RD Station' },
-			{ name: 'Delete', value: 'delete', action: 'Delete a webhook', description: 'Delete a webhook' },
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a webhook',
+				description: 'Register a webhook in RD Station',
+			},
+			{
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete a webhook',
+				description: 'Delete a webhook',
+			},
 			{ name: 'Get', value: 'get', action: 'Get a webhook', description: 'Get a webhook' },
-			{ name: 'Get Many', value: 'getMany', action: 'Get many webhooks', description: 'Get the webhooks created by this integration' },
-			{ name: 'Update', value: 'update', action: 'Update a webhook', description: 'Change the event or the URL of a webhook' },
+			{
+				name: 'Get Many',
+				value: 'getMany',
+				action: 'Get many webhooks',
+				description: 'Get the webhooks created by this integration',
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a webhook',
+				description: 'Change the event or the URL of a webhook',
+			},
 		],
 		'getMany',
 	),

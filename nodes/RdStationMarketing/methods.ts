@@ -154,7 +154,11 @@ export async function getWorkflowActions(
 ): Promise<INodePropertyOptions[]> {
 	const workflowId = this.getCurrentNodeParameter('workflowId', { extractValue: true }) as string;
 	if (!workflowId) return [];
-	const response = await rdMarketingApiRequest.call(this, 'GET', `/platform/workflows/${workflowId}`);
+	const response = await rdMarketingApiRequest.call(
+		this,
+		'GET',
+		`/platform/workflows/${workflowId}`,
+	);
 	const info = (response.workflow_info as IDataObject | undefined) ?? response;
 	return extractItems(info, 'actions').map((action) => ({
 		name: String(action.type),
@@ -172,5 +176,8 @@ export const searchCatalogs = makeListSearch({
 export const searchWebhooks = makeListSearch({
 	path: '/integrations/webhooks',
 	itemsKey: 'webhooks',
-	toResult: (item) => ({ name: `${String(item.event_type)} - ${String(item.url)}`, value: String(item.uuid) }),
+	toResult: (item) => ({
+		name: `${String(item.event_type)} - ${String(item.url)}`,
+		value: String(item.uuid),
+	}),
 });

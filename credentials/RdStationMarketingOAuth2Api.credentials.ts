@@ -18,7 +18,10 @@ export class RdStationMarketingOAuth2Api implements ICredentialType {
 
 	documentationUrl = 'https://developers.rdstation.com/reference/autentica%C3%A7%C3%A3o';
 
-	icon = { light: 'file:rdStationMarketing.svg', dark: 'file:rdStationMarketing.dark.svg' } as const;
+	icon = {
+		light: 'file:rdStationMarketing.svg',
+		dark: 'file:rdStationMarketing.dark.svg',
+	} as const;
 
 	// Campos escondidos: a RD tem um único endereço de login e de token, então a pessoa não os edita.
 	properties: INodeProperties[] = [

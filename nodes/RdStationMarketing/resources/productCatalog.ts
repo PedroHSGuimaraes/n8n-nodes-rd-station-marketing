@@ -88,10 +88,7 @@ const properties: INodeProperties[] = [
 ];
 
 // Lê o ID do catálogo escolhido; falha se a pessoa não escolheu nenhum.
-const catalogIdOf = (
-	context: Parameters<typeof requireValue>[0],
-	i: number,
-): string => {
+const catalogIdOf = (context: Parameters<typeof requireValue>[0], i: number): string => {
 	// `extractValue` devolve o texto do ID, venha ele da lista ou digitado.
 	const id = context.getNodeParameter('catalogId', i, '', { extractValue: true }) as string;
 	requireValue(context, i, id, 'Product Catalog');
@@ -120,9 +117,14 @@ const create: OperationHandler = async function (i) {
 
 // Product Catalog → Get.
 const get: OperationHandler = async function (i) {
-	return rdMarketingApiRequest.call(this, 'GET', `/platform/catalog_feeds/${catalogIdOf(this, i)}`, {
-		itemIndex: i,
-	});
+	return rdMarketingApiRequest.call(
+		this,
+		'GET',
+		`/platform/catalog_feeds/${catalogIdOf(this, i)}`,
+		{
+			itemIndex: i,
+		},
+	);
 };
 
 // Product Catalog → Get Many: a RD devolve todos de uma vez, como array na raiz.
@@ -137,17 +139,27 @@ const getMany: OperationHandler = async function (i) {
 
 // Product Catalog → Update.
 const update: OperationHandler = async function (i) {
-	return rdMarketingApiRequest.call(this, 'PATCH', `/platform/catalog_feeds/${catalogIdOf(this, i)}`, {
-		body: feedBody(this, i),
-		itemIndex: i,
-	});
+	return rdMarketingApiRequest.call(
+		this,
+		'PATCH',
+		`/platform/catalog_feeds/${catalogIdOf(this, i)}`,
+		{
+			body: feedBody(this, i),
+			itemIndex: i,
+		},
+	);
 };
 
 // Product Catalog → Delete.
 const remove: OperationHandler = async function (i) {
-	await rdMarketingApiRequest.call(this, 'DELETE', `/platform/catalog_feeds/${catalogIdOf(this, i)}`, {
-		itemIndex: i,
-	});
+	await rdMarketingApiRequest.call(
+		this,
+		'DELETE',
+		`/platform/catalog_feeds/${catalogIdOf(this, i)}`,
+		{
+			itemIndex: i,
+		},
+	);
 	// A RD responde 204 sem corpo; o item `deleted` deixa o workflow seguir.
 	return { deleted: true };
 };
@@ -158,11 +170,36 @@ export const productCatalogResource: ResourceModule = {
 	operationSelector: operationSelector(
 		'productCatalog',
 		[
-			{ name: 'Create', value: 'create', action: 'Create a product catalog', description: 'Register the product feed of the account' },
-			{ name: 'Delete', value: 'delete', action: 'Delete a product catalog', description: 'Delete a product catalog' },
-			{ name: 'Get', value: 'get', action: 'Get a product catalog', description: 'Get a product catalog' },
-			{ name: 'Get Many', value: 'getMany', action: 'Get many product catalogs', description: 'Get the product catalogs of the account' },
-			{ name: 'Update', value: 'update', action: 'Update a product catalog', description: 'Change the feed of a product catalog' },
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a product catalog',
+				description: 'Register the product feed of the account',
+			},
+			{
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete a product catalog',
+				description: 'Delete a product catalog',
+			},
+			{
+				name: 'Get',
+				value: 'get',
+				action: 'Get a product catalog',
+				description: 'Get a product catalog',
+			},
+			{
+				name: 'Get Many',
+				value: 'getMany',
+				action: 'Get many product catalogs',
+				description: 'Get the product catalogs of the account',
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a product catalog',
+				description: 'Change the feed of a product catalog',
+			},
 		],
 		'getMany',
 	),

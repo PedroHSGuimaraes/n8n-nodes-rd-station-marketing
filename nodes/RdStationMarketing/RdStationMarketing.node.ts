@@ -44,7 +44,8 @@ export class RdStationMarketing implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Work with contacts, segmentations, automation flows, events and more in RD Station Marketing',
+		description:
+			'Work with contacts, segmentations, automation flows, events and more in RD Station Marketing',
 		defaults: { name: 'RD Station Marketing' },
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],

@@ -122,14 +122,18 @@ function leadReport(
 			this.getNodeParameter('startDate', i),
 			this.getNodeParameter('endDate', i),
 		);
-		return rdMarketingPaginate.call(this, `/platform/workflows/${id}/leads/${route({ actionId })}`, {
-			qs: range,
-			itemsKey,
-			pageSize: LEADS_PAGE_SIZE,
-			returnAll: this.getNodeParameter('returnAll', i, false) as boolean,
-			limit: this.getNodeParameter('limit', i, 50) as number,
-			itemIndex: i,
-		});
+		return rdMarketingPaginate.call(
+			this,
+			`/platform/workflows/${id}/leads/${route({ actionId })}`,
+			{
+				qs: range,
+				itemsKey,
+				pageSize: LEADS_PAGE_SIZE,
+				returnAll: this.getNodeParameter('returnAll', i, false) as boolean,
+				limit: this.getNodeParameter('limit', i, 50) as number,
+				itemIndex: i,
+			},
+		);
 	};
 }
 

@@ -87,7 +87,8 @@ const properties: INodeProperties[] = [
 		required: true,
 		default: '',
 		placeholder: 'e.g. cf_plan',
-		description: 'Identifier used by the API. It must start with "cf_" and cannot be changed later.',
+		description:
+			'Identifier used by the API. It must start with "cf_" and cannot be changed later.',
 		displayOptions: showFor('customField', ['create']),
 	},
 	// Campo escolhido numa lista lida da conta, para atualizar ou apagar.

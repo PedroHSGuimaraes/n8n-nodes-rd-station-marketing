@@ -43,14 +43,17 @@ export class RdStationMarketingTrigger implements INodeType {
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["event"]}}',
-		description: 'Starts the workflow when RD Station Marketing sends a conversion or opportunity event',
+		description:
+			'Starts the workflow when RD Station Marketing sends a conversion or opportunity event',
 		defaults: { name: 'RD Station Marketing Trigger' },
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
 		// O Webhook Service da RD só aceita OAuth2.
 		credentials: [{ name: 'rdStationMarketingOAuth2Api', required: true }],
 		// A RD espera resposta 2xx em 5 s, então respondemos assim que o corpo chega.
-		webhooks: [{ name: 'default', httpMethod: 'POST', responseMode: 'onReceived', path: 'webhook' }],
+		webhooks: [
+			{ name: 'default', httpMethod: 'POST', responseMode: 'onReceived', path: 'webhook' },
+		],
 		properties: [
 			{
 				// Evento da RD que dispara o workflow.
@@ -71,7 +74,8 @@ export class RdStationMarketingTrigger implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: 'e.g. newsletter, landing-1',
-				description: 'Comma-separated conversion identifiers. Leave empty to receive all conversions.',
+				description:
+					'Comma-separated conversion identifiers. Leave empty to receive all conversions.',
 				displayOptions: { show: { event: ['converted'] } },
 			},
 			{
